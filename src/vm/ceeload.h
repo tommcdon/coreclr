@@ -2605,9 +2605,9 @@ public:
     HRESULT GetScopeName(LPCUTF8 * pszName) { WRAPPER_NO_CONTRACT; return m_file->GetScopeName(pszName); }
     const SString &GetPath() { WRAPPER_NO_CONTRACT; return m_file->GetPath(); }
 
-#ifdef LOGGING
+//#ifdef LOGGING
     LPCWSTR GetDebugName() { WRAPPER_NO_CONTRACT; return m_file->GetDebugName(); }
-#endif
+//#endif
 
     BOOL IsILOnly() { WRAPPER_NO_CONTRACT; return m_file->IsILOnly(); }
 

@@ -151,11 +151,11 @@ public:
     // Debug helper which nops in retail; and asserts invariants in debug.
 #ifdef _DEBUG
     void AssertValid();
-
+#endif 
     // Debug helpers to get name of frame. Useful in asserts + log statements.
     LPCUTF8 DbgGetClassName();
     LPCUTF8 DbgGetMethodName();
-#endif    
+//#endif    
 
 protected:
     // These are common internal helpers shared by the other Init*() helpers above.

@@ -656,6 +656,8 @@ private:
             UINT32 regNum = pSlot->Slot.RegisterNumber;
             if( reportScratchSlots || !IsScratchRegister( regNum, pRD ) )
             {
+                STRESS_LOG_VA2((LF_GCROOTS, LL_INFO1000, "Call 'ReportRegisterToGC' " FMT_REG "\n", regNum));
+
                 ReportRegisterToGC(
                             regNum,
                             pSlot->Flags,
@@ -667,7 +669,7 @@ private:
             }
             else
             {
-                LOG((LF_GCROOTS, LL_INFO1000, "\"Live\" scratch register " FMT_REG " not reported\n", regNum));
+                STRESS_LOG_VA2((LF_GCROOTS, LL_INFO1000, "\"Live\" scratch register " FMT_REG " not reported\n", regNum));
             }
         }
         else
@@ -676,6 +678,8 @@ private:
             GcStackSlotBase spBase = pSlot->Slot.Stack.Base;
             if( reportScratchSlots || !IsScratchStackSlot(spOffset, spBase, pRD) )
             {
+                STRESS_LOG_VA2((LF_GCROOTS, LL_INFO1000, "Call 'ReportStackSlotToGC' " FMT_STK "\n", DBG_STK(spOffset)));
+
                 ReportStackSlotToGC(
                             spOffset,
                             spBase,
@@ -688,7 +692,7 @@ private:
             }
             else
             {
-                LOG((LF_GCROOTS, LL_INFO1000, "\"Live\" scratch stack slot " FMT_STK  " not reported\n", DBG_STK(spOffset)));
+                STRESS_LOG_VA2((LF_GCROOTS, LL_INFO1000, "\"Live\" scratch stack slot " FMT_STK  " not reported\n", DBG_STK(spOffset)));
             }
         }
     }

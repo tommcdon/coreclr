@@ -225,9 +225,9 @@ class VirtualCallStubManager : public StubManager
     VPTR_VTABLE_CLASS(VirtualCallStubManager, StubManager)
 
 public:
-#ifdef _DEBUG
+//#ifdef _DEBUG
     virtual const char * DbgGetName() { LIMITED_METHOD_CONTRACT; return "VirtualCallStubManager"; }
-#endif    
+//#endif    
 
     // The reason for our existence, return a callstub for type id and slot number
     // where type id = 0 for the class contract (i.e. a virtual call), and type id > 0 for an
@@ -867,10 +867,10 @@ class VirtualCallStubManagerManager : public StubManager
 
     VirtualCallStubManagerIterator IterateVirtualCallStubManagers();
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     // Debug helper to help identify stub-managers.
     virtual const char * DbgGetName() { LIMITED_METHOD_CONTRACT; return "VirtualCallStubManagerManager"; }
-#endif
+//#endif
 };
 
 /********************************************************************************************************

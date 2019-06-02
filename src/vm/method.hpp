@@ -221,7 +221,7 @@ public:
         ALIGNMENT_MASK  = (ALIGNMENT-1)
     };
 
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
 
     // These are set only for MethodDescs but every time we want to use the debugger
     // to examine these fields, the code has the thing stored in a MethodDesc*.
@@ -233,7 +233,7 @@ public:
 
     PTR_GCCoverageInfo m_GcCover;
 
-#endif // _DEBUG
+//#endif // _DEBUG
 
     inline BOOL HasStableEntryPoint()
     {

@@ -191,10 +191,10 @@ public:
     // Full name is the most descriptive name available (path, codebase, or name as appropriate)
     void GetCodeBaseOrName(SString &result);
 
-#ifdef LOGGING
+//#ifdef LOGGING
     // This is useful for log messages
     LPCWSTR GetDebugName();
-#endif
+//#endif
 
     // ------------------------------------------------------------
     // Checks

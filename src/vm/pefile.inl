@@ -233,7 +233,7 @@ inline const SString &PEFile::GetModuleFileNameHint()
 }
 #endif // DACCESS_COMPILE
 
-#ifdef LOGGING
+//#ifdef LOGGING
 inline LPCWSTR PEFile::GetDebugName()
 {
     CONTRACTL
@@ -252,7 +252,7 @@ inline LPCWSTR PEFile::GetDebugName()
     return GetPath();
 #endif
 }
-#endif
+//#endif
 
 // ------------------------------------------------------------
 // Classification

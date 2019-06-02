@@ -82,12 +82,12 @@ public:
     
     TraceDestination() { }
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     // Get a string representation of this TraceDestination
     // Uses the supplied buffer to store the memory (or may return a string literal).
     // This will also print the TD's arguments.    
     const WCHAR * DbgToString(SString &buffer);
-#endif
+//#endif
 
     // Initialize for unmanaged code.
     // The addr is in unmanaged code. Used for Step-in from managed to native.
@@ -251,10 +251,10 @@ class StubManager
 #endif
 
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     // Debug helper to help identify stub-managers. Make it pure to force stub managers to implement it.
     virtual const char * DbgGetName() = 0;
-#endif
+//#endif
 
     // Only Stubmanagers that return 'TRACE_MGR_PUSH' as a trace type need to implement this function
     // Fills in 'trace' (the target), and 'pRetAddr' (the method that called the stub) (this is needed
@@ -274,7 +274,7 @@ class StubManager
 
 
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 public:
     //-----------------------------------------------------------------------------
     // Debugging Stubmanager bugs is very painful. You need to figure out
@@ -312,7 +312,7 @@ protected:
 
     static CrstStatic s_DbgLogCrst;
 
-#endif
+//#endif
 
         
 protected:
@@ -407,9 +407,9 @@ class ThePreStubManager : public StubManager
     ThePreStubManager() { LIMITED_METHOD_CONTRACT; }
 #endif
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     virtual const char * DbgGetName() { LIMITED_METHOD_CONTRACT; return "ThePreStubManager"; }
-#endif
+//#endif
 
     virtual BOOL CheckIsStub_Internal(PCODE stubStartAddress);
 
@@ -441,10 +441,10 @@ class PrecodeStubManager : public StubManager
 
     SPTR_DECL(PrecodeStubManager, g_pManager);
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
         // Debug helper to help identify stub-managers.
         virtual const char * DbgGetName() { LIMITED_METHOD_CONTRACT; return "PrecodeStubManager"; }
-#endif
+//#endif
 
 
     static void Init();
@@ -492,9 +492,9 @@ class StubLinkStubManager : public StubManager
 
   public:
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     virtual const char * DbgGetName() { LIMITED_METHOD_CONTRACT; return "StubLinkStubManager"; }
-#endif    
+//#endif    
 
 
     SPTR_DECL(StubLinkStubManager, g_pManager);
@@ -557,9 +557,9 @@ class ThunkHeapStubManager : public StubManager
     ~ThunkHeapStubManager() {WRAPPER_NO_CONTRACT;}
 #endif
 
-#ifdef _DEBUG
-    virtual const char * DbgGetName() { LIMITED_METHOD_CONTRACT; return "ThunkHeapStubManager"; }
-#endif
+//#ifdef _DEBUG
+    virtual const char * DbgGetName() { LIMITED_METHOD_CONTRACT; return "ThunkHeapStubManager"; }//
+//#endif
 
   protected:
     LockedRangeList m_rangeList;
@@ -607,9 +607,9 @@ class JumpStubStubManager : public StubManager
 
 #endif
   
-#ifdef _DEBUG
+//#ifdef _DEBUG
     virtual const char * DbgGetName() { LIMITED_METHOD_CONTRACT; return "JumpStubStubManager"; }
-#endif
+//#endif
 
     virtual BOOL CheckIsStub_Internal(PCODE stubStartAddress);
 
@@ -649,9 +649,9 @@ class RangeSectionStubManager : public StubManager
     static PCODE GetMethodThunkTarget(PCODE stubStartAddress);
   
   public:
-#ifdef _DEBUG
+//#ifdef _DEBUG
     virtual const char * DbgGetName() { LIMITED_METHOD_CONTRACT; return "RangeSectionStubManager"; }
-#endif
+//#endif
 
     virtual BOOL CheckIsStub_Internal(PCODE stubStartAddress);
 
@@ -706,9 +706,9 @@ class ILStubManager : public StubManager
 
    public:
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     virtual const char * DbgGetName() { LIMITED_METHOD_CONTRACT; return "ILStubManager"; }
-#endif
+//#endif
 
     virtual BOOL CheckIsStub_Internal(PCODE stubStartAddress);
 
@@ -755,9 +755,9 @@ class InteropDispatchStubManager : public StubManager
     ~InteropDispatchStubManager() {WRAPPER_NO_CONTRACT;}
 #endif
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     virtual const char * DbgGetName() { LIMITED_METHOD_CONTRACT; return "InteropDispatchStubManager"; }
-#endif
+//#endif
 
     virtual BOOL CheckIsStub_Internal(PCODE stubStartAddress);
 
@@ -806,9 +806,9 @@ class DelegateInvokeStubManager : public StubManager
     BOOL AddStub(Stub* pStub);
     void RemoveStub(Stub* pStub);
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     virtual const char * DbgGetName() { LIMITED_METHOD_CONTRACT; return "DelegateInvokeStubManager"; }
-#endif
+//#endif
 
     virtual BOOL CheckIsStub_Internal(PCODE stubStartAddress);
 
@@ -867,9 +867,9 @@ public:
     static bool IsTailCallStubHelper(PCODE code);
 #endif // DACCESS_COMPILE
 
-#if defined(_DEBUG)
+//#if defined(_DEBUG)
     virtual const char * DbgGetName() { LIMITED_METHOD_CONTRACT; return "TailCallStubManager"; }
-#endif // _DEBUG
+//#endif // _DEBUG
 
     virtual BOOL CheckIsStub_Internal(PCODE stubStartAddress);
 

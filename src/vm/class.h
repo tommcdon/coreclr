@@ -935,7 +935,7 @@ public:
     /************************************
      *  INSTANCE MEMBER VARIABLES
      ************************************/
-#ifdef _DEBUG
+//#ifdef _DEBUG
 public:
     inline LPCUTF8 GetDebugClassName ()
     {
@@ -956,7 +956,7 @@ public:
      * outside the class.
      */
 
-#endif // _DEBUG
+//#endif // _DEBUG
 
 #ifdef FEATURE_COMINTEROP
     /*
@@ -1793,7 +1793,7 @@ public:
         SigPointer sp,
         CorGenericParamAttr position);
 
-#if defined(_DEBUG)
+//#if defined(_DEBUG)
 public:
     enum{
         AUXFLAG_APP_DOMAIN_AGILE                = 0x00000001,
@@ -1890,7 +1890,7 @@ public:
     static void SetAppDomainAgileAttribute(MethodTable * pMT);
 
     static void GetPredefinedAgility(Module *pModule, mdTypeDef td, BOOL *pfIsAgile, BOOL *pfIsCheckAgile);
-#endif // defined(_DEBUG)
+//#endif // defined(_DEBUG)
 
     //-------------------------------------------------------------
     // CONCRETE DATA LAYOUT
@@ -1992,11 +1992,11 @@ public:
     // with the offset.
     RelativePointer<PTR_GuidInfo> m_pGuidInfo;  // The cached guid information for interfaces.
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 public:
     LPCUTF8 m_szDebugClassName;
     BOOL m_fDebuggingClass;
-#endif 
+//#endif 
 
 private: 
     // Layout rest of fields below from largest to smallest to lessen the chance of wasting bytes with
@@ -2036,9 +2036,9 @@ private:
      * We maintain some auxillary flags in DEBUG builds,
      * this frees up some bits in m_wVMFlags
      */
-#if defined(_DEBUG)
+//#if defined(_DEBUG)
     WORD m_wAuxFlags;
-#endif
+//#endif
 
     // NOTE: Following BYTE fields are layed out together so they'll fit within the same DWORD for efficient
     // structure packing.
@@ -2184,9 +2184,9 @@ public:
     LayoutEEClass() : EEClass(sizeof(LayoutEEClass))
     {
         LIMITED_METHOD_CONTRACT;
-#ifdef _DEBUG
+//#ifdef _DEBUG
         FillMemory(&m_LayoutInfo, sizeof(m_LayoutInfo), 0xcc);
-#endif
+//#endif
     }
 #endif // !DACCESS_COMPILE
 };

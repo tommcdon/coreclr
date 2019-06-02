@@ -13,7 +13,7 @@
 #include "olecontexthelpers.h"
 #endif
 
-#ifdef LOGGING
+//#ifdef LOGGING
 const char *GetTType( TraceType tt)
 {
     LIMITED_METHOD_CONTRACT;
@@ -49,9 +49,9 @@ void LogTraceDestination(const char * szHint, PCODE stubAddr, TraceDestination *
             pTrace->GetAddress(), stubAddr));
     }
 }
-#endif
+//#endif
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 // Get a string representation of this TraceDestination
 // Uses the supplied buffer to store the memory (or may return a string literal).
 const WCHAR * TraceDestination::DbgToString(SString & buffer)
@@ -132,7 +132,7 @@ const WCHAR * TraceDestination::DbgToString(SString & buffer)
 #endif            
     return pValue;
 }
-#endif
+//#endif
 
 
 void TraceDestination::InitForUnjittedMethod(MethodDesc * pDesc)
@@ -196,11 +196,11 @@ void TraceDestination::InitForUnjittedMethod(MethodDesc * pDesc)
 
 
 // Initialize statics.
-#ifdef _DEBUG
+//#ifdef _DEBUG
 SString * StubManager::s_pDbgStubManagerLog = NULL; 
 CrstStatic StubManager::s_DbgLogCrst;
 
-#endif
+//#endif
 
 SPTR_IMPL(StubManager, StubManager, g_pFirstManager);
 
@@ -741,7 +741,7 @@ void StubManager::TerminateStubManagers()
 #endif // !DACCESS_COMPILE
 }
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 
 //-----------------------------------------------------------
 // Should stub-manager logging be enabled?
@@ -752,15 +752,15 @@ bool StubManager::IsStubLoggingEnabled()
     // on the helper thread. (B/c it may deadlock. See SUPPRESS_ALLOCATION_ASSERTS_IN_THIS_SCOPE)
 
     // We avoid this by just not logging when native-debugging.
-    if (IsDebuggerPresent())
-    {
-        return false;
-    }
+    //if (IsDebuggerPresent())
+    //{
+    //    return false;
+    //}
 
-    return true;
+    return false;
 }
 
-
+#ifdef _DEBUG
 //-----------------------------------------------------------
 // Call to reset the log. This is used at the start of a new step-operation.
 // pThread is the managed thread doing the stepping. 

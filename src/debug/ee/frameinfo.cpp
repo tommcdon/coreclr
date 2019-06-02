@@ -505,7 +505,7 @@ bool HasExitRuntime(Frame *pFrame, DebuggerFrameData *pData, FramePointer *pPote
 #endif // _TARGET_X86_
 }
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 
 //-----------------------------------------------------------------------------
 // Debug helpers to get name of Frame.
@@ -518,7 +518,7 @@ LPCUTF8 FrameInfo::DbgGetMethodName()
 {
     return (md == NULL) ? ("None") : (md->m_pszDebugMethodName);
 }
-
+#ifdef _DEBUG
 
 //-----------------------------------------------------------------------------
 // Debug helper to asserts invariants about a FrameInfo before we dispatch it.
