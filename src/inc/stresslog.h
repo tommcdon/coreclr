@@ -63,6 +63,14 @@
             LogSpewAlways msg;                                                \
             } while(0)
 
+#ifndef NOPENOPE
+#define STRESS_LOG_VA2(msg) do {                                              \
+                StressLog::DoLogMsg msg;                                      \
+            } while(0)
+#else
+#define STRESS_LOG_VA2(msg) 
+#endif
+
 #define STRESS_LOG0(facility, level, msg) do {                                \
             if (StressLog::LogOn(facility, level))                            \
                 StressLog::LogMsg(level, facility, 0, msg);                   \
@@ -315,6 +323,95 @@ public:
     static BOOL InlinedETWLogOn(unsigned facility, unsigned level);
 
     static void LogMsg(unsigned level, unsigned facility, int cArgs, const char* format, ... );
+
+    //static void DoLogMsg(unsigned facility, unsigned level, const char* format, ...)
+    //{
+    //    char buf[8192];
+    //    va_list ar;
+    //    va_start(ar, format);
+    //    _vsnprintf_s(buf, sizeof(buf) / sizeof(buf[0]), format, ar);
+    //    va_end(ar);
+    //    //OutputDebugString(buf);
+
+    //    LogMsg(level, facility, 1, "%s", buf);
+    //}
+
+    static void DoLogMsg(unsigned facility, unsigned level, const char* format)
+    {
+        LogMsg(level, facility, 0, format);
+    }
+
+    template < typename T1 >
+    static void DoLogMsg(unsigned facility, unsigned level, const char* format, T1 data1)
+    {
+        static_assert_no_msg(sizeof(T1) <= sizeof(void*));
+        LogMsg(level, facility, 1, format, (void*)(size_t)data1);
+    }
+
+    template < typename T1, typename T2 >
+    static void DoLogMsg(unsigned facility, unsigned level, const char* format, T1 data1, T2 data2)
+    {
+        static_assert_no_msg(sizeof(T1) <= sizeof(void*) && sizeof(T2) <= sizeof(void*));
+        LogMsg(level, facility, 2, format, (void*)(size_t)data1, (void*)(size_t)data2);
+    }
+
+    template < typename T1, typename T2, typename T3 >
+    static void DoLogMsg(unsigned facility, unsigned level, const char* format, T1 data1, T2 data2, T3 data3)
+    {
+        static_assert_no_msg(sizeof(T1) <= sizeof(void*) && sizeof(T2) <= sizeof(void*) && sizeof(T3) <= sizeof(void*));
+        LogMsg(level, facility, 3, format, (void*)(size_t)data1, (void*)(size_t)data2, (void*)(size_t)data3);
+    }
+
+    template < typename T1, typename T2, typename T3, typename T4 >
+    static void DoLogMsg(unsigned facility, unsigned level, const char* format, T1 data1, T2 data2, T3 data3, T4 data4)
+    {
+        static_assert_no_msg(sizeof(T1) <= sizeof(void*) && sizeof(T2) <= sizeof(void*) && sizeof(T3) <= sizeof(void*) && sizeof(T4) <= sizeof(void*));
+        LogMsg(level, facility, 4, format, (void*)(size_t)data1, (void*)(size_t)data2, (void*)(size_t)data3, (void*)(size_t)data4);
+    }
+
+    template < typename T1, typename T2, typename T3, typename T4, typename T5 >
+    static void DoLogMsg(unsigned facility, unsigned level, const char* format, T1 data1, T2 data2, T3 data3, T4 data4, T5 data5)
+    {
+        static_assert_no_msg(sizeof(T1) <= sizeof(void*) && sizeof(T2) <= sizeof(void*) && sizeof(T3) <= sizeof(void*) && sizeof(T4) <= sizeof(void*) && sizeof(T5) <= sizeof(void*));
+        LogMsg(level, facility, 5, format, (void*)(size_t)data1, (void*)(size_t)data2, (void*)(size_t)data3, (void*)(size_t)data4, (void*)(size_t)data5);
+    }
+
+    template < typename T1, typename T2, typename T3, typename T4, typename T5, typename T6 >
+    static void DoLogMsg(unsigned facility, unsigned level, const char* format, T1 data1, T2 data2, T3 data3, T4 data4, T5 data5, T6 data6)
+    {
+        static_assert_no_msg(sizeof(T1) <= sizeof(void*) && sizeof(T2) <= sizeof(void*) && sizeof(T3) <= sizeof(void*) && sizeof(T4) <= sizeof(void*) && sizeof(T5) <= sizeof(void*) && sizeof(T6) <= sizeof(void*));
+        LogMsg(level, facility, 6, format, (void*)(size_t)data1, (void*)(size_t)data2, (void*)(size_t)data3, (void*)(size_t)data4, (void*)(size_t)data5, (void*)(size_t)data6);
+    }
+
+    template < typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7 >
+    static void DoLogMsg(unsigned facility, unsigned level, const char* format, T1 data1, T2 data2, T3 data3, T4 data4, T5 data5, T6 data6, T7 data7)
+    {
+        static_assert_no_msg(sizeof(T1) <= sizeof(void*) && sizeof(T2) <= sizeof(void*) && sizeof(T3) <= sizeof(void*) && sizeof(T4) <= sizeof(void*) && sizeof(T5) <= sizeof(void*) && sizeof(T6) <= sizeof(void*) && sizeof(T7) <= sizeof(void*));
+        LogMsg(level, facility, 7, format, (void*)(size_t)data1, (void*)(size_t)data2, (void*)(size_t)data3, (void*)(size_t)data4, (void*)(size_t)data5, (void*)(size_t)data6, (void*)(size_t)data7);
+    }
+
+    template < typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8 >
+    static void DoLogMsg(unsigned facility, unsigned level, const char* format, T1 data1, T2 data2, T3 data3, T4 data4, T5 data5, T6 data6, T7 data7, T8 data8)
+    {
+        static_assert_no_msg(sizeof(T1) <= sizeof(void*) && sizeof(T2) <= sizeof(void*) && sizeof(T3) <= sizeof(void*) && sizeof(T4) <= sizeof(void*) && sizeof(T5) <= sizeof(void*) && sizeof(T6) <= sizeof(void*) && sizeof(T7) <= sizeof(void*) && sizeof(T8) <= sizeof(void*));
+        LogMsg(level, facility, 8, format, (void*)(size_t)data1, (void*)(size_t)data2, (void*)(size_t)data3, (void*)(size_t)data4, (void*)(size_t)data5, (void*)(size_t)data6, (void*)(size_t)data7, (void*)(size_t)data8);
+    }
+
+    template < typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9 >
+    static void DoLogMsg(unsigned facility, unsigned level, const char* format, T1 data1, T2 data2, T3 data3, T4 data4, T5 data5, T6 data6, T7 data7, T8 data8, T9 data9)
+    {
+        static_assert_no_msg(sizeof(T1) <= sizeof(void*) && 
+            sizeof(T2) <= sizeof(void*) && 
+            sizeof(T3) <= sizeof(void*) && 
+            sizeof(T4) <= sizeof(void*) && 
+            sizeof(T5) <= sizeof(void*) && 
+            sizeof(T6) <= sizeof(void*) && 
+            sizeof(T7) <= sizeof(void*) && 
+            sizeof(T8) <= sizeof(void*) &&
+            sizeof(T9) <= sizeof(void*));
+        LogMsg(level, facility, 9, format, (void*)(size_t)data1, (void*)(size_t)data2, (void*)(size_t)data3, (void*)(size_t)data4, (void*)(size_t)data5, (void*)(size_t)data6, (void*)(size_t)data7, (void*)(size_t)data8, (void*)(size_t)data9);
+    }
+
 
 // Support functions for STRESS_LOG_VA
 // We disable the warning "conversion from 'type' to 'type' of greater size" since everything will

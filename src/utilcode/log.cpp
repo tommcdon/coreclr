@@ -12,6 +12,8 @@
 // build, define logging independent of _DEBUG here and each place you want
 // to use it.
 //
+#define LOGGING
+
 #ifdef _DEBUG
 #define LOGGING
 #endif
@@ -19,9 +21,11 @@
 #include "log.h"
 #include "utilcode.h"
 
+#include "stresslog.h"
+
 #ifdef LOGGING
 
-#define DEFAULT_LOGFILE_NAME    W("COMPLUS.LOG")
+#define DEFAULT_LOGFILE_NAME    W("C:\\Data\\tmp\\COMPLUSFOOFOO.LOG")
 
 #define LOG_ENABLE_FILE_LOGGING         0x0001
 #define LOG_ENABLE_FLUSH_FILE           0x0002
@@ -31,13 +35,13 @@
 #define LOG_ENABLE                      0x0040
 
 
-static DWORD    LogFlags                    = 0;
+static DWORD    LogFlags                    = LOG_ENABLE| LOG_ENABLE_FILE_LOGGING| LOG_ENABLE_FLUSH_FILE| LOG_ENABLE_DEBUGGER_LOGGING;//0;
 static CQuickWSTR     szLogFileName;
 static HANDLE   LogFileHandle               = INVALID_HANDLE_VALUE;
 static MUTEX_COOKIE   LogFileMutex                = 0;
 static DWORD    LogFacilityMask             = LF_ALL;
-static DWORD    LogFacilityMask2            = 0;
-static DWORD    LogVMLevel                  = LL_INFO100;
+static DWORD    LogFacilityMask2            = LF_ALWAYS;//0;
+static DWORD    LogVMLevel                  = LL_EVERYTHING;//LL_INFO100;
         // <TODO>@todo FIX should probably only display warnings and above by default</TODO>
 
 
@@ -48,7 +52,7 @@ VOID InitLogging()
         // <TODO>FIX bit of a workaround for now, check for the log file in the
         // registry and if there, turn on file logging VPM</TODO>
     
-    LogFlags |= REGUTIL::GetConfigFlag_DontUse_(CLRConfig::INTERNAL_LogEnable, LOG_ENABLE);    
+    /*LogFlags |= REGUTIL::GetConfigFlag_DontUse_(CLRConfig::INTERNAL_LogEnable, LOG_ENABLE);    
     LogFacilityMask = REGUTIL::GetConfigDWORD_DontUse_(CLRConfig::INTERNAL_LogFacility, LogFacilityMask) | LF_ALWAYS;
     LogVMLevel = REGUTIL::GetConfigDWORD_DontUse_(CLRConfig::EXTERNAL_LogLevel, LogVMLevel);
     LogFlags |= REGUTIL::GetConfigFlag_DontUse_(CLRConfig::INTERNAL_LogFileAppend, LOG_ENABLE_APPEND_FILE);
@@ -56,30 +60,31 @@ VOID InitLogging()
     LogFlags |= REGUTIL::GetConfigFlag_DontUse_(CLRConfig::INTERNAL_LogToDebugger, LOG_ENABLE_DEBUGGER_LOGGING);
     LogFlags |= REGUTIL::GetConfigFlag_DontUse_(CLRConfig::INTERNAL_LogToFile,     LOG_ENABLE_FILE_LOGGING);
     LogFlags |= REGUTIL::GetConfigFlag_DontUse_(CLRConfig::INTERNAL_LogToConsole,  LOG_ENABLE_CONSOLE_LOGGING);
-    
-    LogFacilityMask2 = REGUTIL::GetConfigDWORD_DontUse_(CLRConfig::INTERNAL_LogFacility2, LogFacilityMask2) | LF_ALWAYS;
+*/
+   
+    //LogFacilityMask2 = REGUTIL::GetConfigDWORD_DontUse_(CLRConfig::INTERNAL_LogFacility2, LogFacilityMask2) | LF_ALWAYS;
 
     if (SUCCEEDED(szLogFileName.ReSizeNoThrow(MAX_LONGPATH)))
     {
         wcscpy_s(szLogFileName.Ptr(), szLogFileName.Size(), DEFAULT_LOGFILE_NAME);
     }
 
-    LPWSTR fileName = CLRConfig::GetConfigValue(CLRConfig::INTERNAL_LogFile);
-    if (fileName != 0)
-    {
-        if (SUCCEEDED(szLogFileName.ReSizeNoThrow(wcslen(fileName) + 32)))
-        {
-            wcscpy_s(szLogFileName.Ptr(), szLogFileName.Size(), fileName);
-        }
-        delete fileName;
-    }
+    //LPWSTR fileName = CLRConfig::GetConfigValue(CLRConfig::INTERNAL_LogFile);
+    //if (fileName != 0)
+    //{
+    //    if (SUCCEEDED(szLogFileName.ReSizeNoThrow(wcslen(fileName) + 32)))
+    //    {
+    //        wcscpy_s(szLogFileName.Ptr(), szLogFileName.Size(), fileName);
+    //    }
+    //    delete fileName;
+    //}
 
-    if (REGUTIL::GetConfigDWORD_DontUse_(CLRConfig::INTERNAL_LogWithPid, FALSE))
-    {
-        WCHAR szPid[20];
-        swprintf_s(szPid, COUNTOF(szPid), W(".%d"), GetCurrentProcessId());
-        wcscat_s(szLogFileName.Ptr(), szLogFileName.Size(), szPid);
-    }
+    //if (REGUTIL::GetConfigDWORD_DontUse_(CLRConfig::INTERNAL_LogWithPid, FALSE))
+    //{
+    //    WCHAR szPid[20];
+    //    swprintf_s(szPid, COUNTOF(szPid), W(".%d"), GetCurrentProcessId());
+    //    wcscat_s(szLogFileName.Ptr(), szLogFileName.Size(), szPid);
+    //}
 
     if ((LogFlags & LOG_ENABLE) &&
         (LogFlags & LOG_ENABLE_FILE_LOGGING) &&
@@ -265,7 +270,7 @@ VOID LogSpewValist(DWORD facility, DWORD level, const char *fmt, va_list args)
     if (!LoggingOn(facility, level))
         return;
 
-    DEBUG_ONLY_FUNCTION;
+    //DEBUG_ONLY_FUNCTION;
 
     LogSpewAlwaysValist(fmt, args);
 }
@@ -280,7 +285,7 @@ VOID LogSpew2Valist(DWORD facility2, DWORD level, const char *fmt, va_list args)
     if (!Logging2On(facility2, level))
         return;
 
-    DEBUG_ONLY_FUNCTION;
+    //DEBUG_ONLY_FUNCTION;
 
     LogSpewAlwaysValist(fmt, args);
 }
@@ -292,7 +297,7 @@ VOID LogSpewAlwaysValist(const char *fmt, va_list args)
     STATIC_CONTRACT_NOTHROW;
     STATIC_CONTRACT_GC_NOTRIGGER;
     
-    DEBUG_ONLY_FUNCTION;
+    //DEBUG_ONLY_FUNCTION;
 
     // We can't do heap allocations at all.  The current thread may have
     // suspended another thread, and the suspended thread may be inside of the

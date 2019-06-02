@@ -732,6 +732,11 @@ void EEStartupHelper(COINITIEE fFlags)
             StressLog::Initialize(facilities, level, bytesPerThread, totalBytes, GetModuleInst());
             g_pStressLog = &StressLog::theLog;
         }
+        else
+        {
+            StressLog::Initialize(LF_CORDB, LL_INFO100000, STRESSLOG_CHUNK_SIZE * 8, STRESSLOG_CHUNK_SIZE * 4196, GetModuleInst());
+            g_pStressLog = &StressLog::theLog;
+        }
 #endif
 
 #ifdef LOGGING

@@ -581,7 +581,7 @@ void SigFormat::AddType(TypeHandle th)
 // Legacy debug-only string formatting pretty printer
 //
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 #ifndef DACCESS_COMPILE
 
 #include <formattype.h>
@@ -650,4 +650,4 @@ const char* FormatSig(MethodDesc* pMD, AppDomain *pDomain, AllocMemTracker *pamT
     return FormatSig(pMD,pDomain->GetLowFrequencyHeap(),pamTracker);
 }
 #endif
-#endif
+//#endif

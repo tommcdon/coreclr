@@ -174,8 +174,8 @@ ASMCONSTANTS_C_ASSERT(UMThunkMarshInfo__m_pILStub == offsetof(UMThunkMarshInfo, 
 ASMCONSTANTS_C_ASSERT(UMThunkMarshInfo__m_cbActualArgSize == offsetof(UMThunkMarshInfo, m_cbActualArgSize))
 
 
-#define MethodDesc__m_wFlags DBG_FRE(0x1A, 0x06)
-ASMCONSTANTS_C_ASSERT(MethodDesc__m_wFlags == offsetof(MethodDesc, m_wFlags))
+//#define MethodDesc__m_wFlags DBG_FRE(0x1A, 0x06)
+//ASMCONSTANTS_C_ASSERT(MethodDesc__m_wFlags == offsetof(MethodDesc, m_wFlags))
 
 #define MethodDesc__mdcClassification 0x7
 ASMCONSTANTS_C_ASSERT(MethodDesc__mdcClassification == mdcClassification)

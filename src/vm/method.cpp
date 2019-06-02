@@ -668,22 +668,22 @@ COUNT_T MethodDesc::GetStableHash()
     }
     else
     {
-#if defined(_DEBUG) 
+//#if defined(_DEBUG) 
         // Calling _GetFullyQualifiedNameForClass in chk build is very expensive
         // since it construct the class name everytime we call this method. In chk
         // builds we already have a cheaper way to get the class name -
         // GetDebugClassName - which doesn't calculate the class name everytime.
         // This results in huge saving in Ngen time for checked builds. 
         className = m_pszDebugClassName;
-#else // !_DEBUG
-        // since this is for diagnostic purposes only,
-        // give up on the namespace, as we don't have a buffer to concat it
-        // also note this won't show array class names.
-        LPCUTF8       nameSpace;
-        MethodTable * pMT = GetMethodTable();
-
-        className = pMT->GetFullyQualifiedNameInfo(&nameSpace);
-#endif // !_DEBUG
+//#else // !_DEBUG
+//        // since this is for diagnostic purposes only,
+//        // give up on the namespace, as we don't have a buffer to concat it
+//        // also note this won't show array class names.
+//        LPCUTF8       nameSpace;
+//        MethodTable * pMT = GetMethodTable();
+//
+//        className = pMT->GetFullyQualifiedNameInfo(&nameSpace);
+//#endif // !_DEBUG
     }
 
     COUNT_T hash = HashStringA(moduleName);             // Start the hash with the Module name            
@@ -2568,13 +2568,13 @@ void MethodDesc::Save(DataImage *image)
     _ASSERTE(image->GetModule()->GetAssembly() ==
              GetAppDomain()->ToCompilationDomain()->GetTargetAssembly());
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     SString s;
-    if (LoggingOn(LF_ZAP, LL_INFO10000))
-    {
-        TypeString::AppendMethodDebug(s, this);
-        LOG((LF_ZAP, LL_INFO10000, "  MethodDesc::Save %S (%p)\n", s.GetUnicode(), this));
-    }
+    //if (LoggingOn(LF_ZAP, LL_INFO10000))
+    //{
+    //    TypeString::AppendMethodDebug(s, this);
+    //    LOG((LF_ZAP, LL_INFO10000, "  MethodDesc::Save %S (%p)\n", s.GetUnicode(), this));
+    //}
 
     if (m_pszDebugMethodName && !image->IsStored((void*) m_pszDebugMethodName))
         image->StoreStructure((void *) m_pszDebugMethodName,
@@ -2591,7 +2591,7 @@ void MethodDesc::Save(DataImage *image)
                                         (ULONG)(strlen(m_pszDebugMethodSignature) + 1),
                                         DataImage::ITEM_DEBUG,
                                         1);
-#endif // _DEBUG
+//#endif // _DEBUG
 
     if (IsMethodImpl())
     {
@@ -3270,7 +3270,7 @@ MethodDesc::Fixup(
     image->ZeroPointerField(this, offsetof(MethodDesc, m_GcCover));
 #endif // HAVE_GCCOVER
 
-#if _DEBUG
+//#if _DEBUG
     image->ZeroPointerField(this, offsetof(MethodDesc, m_pszDebugMethodName));
     image->FixupPointerField(this, offsetof(MethodDesc, m_pszDebugMethodName));
     image->FixupPointerField(this, offsetof(MethodDesc, m_pszDebugClassName));
@@ -3283,7 +3283,7 @@ MethodDesc::Fixup(
     {
         image->FixupMethodTablePointer(this, &m_pDebugMethodTable);
     }
-#endif // _DEBUG
+//#endif // _DEBUG
 
     MethodDesc *pNewMD = (MethodDesc*) image->GetImagePointer(this);
     PREFIX_ASSUME(pNewMD != NULL);

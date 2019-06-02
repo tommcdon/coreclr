@@ -760,6 +760,8 @@ bool GcInfoDecoder::EnumerateLiveSlots(
                         {
                             for(UINT32 slotIndex = readSlots; slotIndex < readSlots + cnt; slotIndex++)
                             {
+                                STRESS_LOG_VA2((LF_GCROOTS, LL_INFO100000, "Fast Path ReportSlotToGC slotIndex=%d.\n", slotIndex));
+
                                 ReportSlotToGC(slotDecoder,
                                                slotIndex,
                                                pRD,
@@ -788,6 +790,8 @@ bool GcInfoDecoder::EnumerateLiveSlots(
             {
                 if(m_Reader.ReadOneFast())
                 {
+                    STRESS_LOG_VA2((LF_GCROOTS, LL_INFO100000, "Fast Path2 ReportSlotToGC slotIndex=%d.\n", slotIndex));
+
                     ReportSlotToGC(
                             slotDecoder,
                             slotIndex,
@@ -813,7 +817,7 @@ bool GcInfoDecoder::EnumerateLiveSlots(
         _ASSERTE(numInterruptibleLength);
         
         // If no info is found for the call site, we default to fully-interruptbile
-        LOG((LF_GCROOTS, LL_INFO1000000, "No GC info found for call site at offset %x. Defaulting to fully-interruptible information.\n", (int) m_InstructionOffset));
+        STRESS_LOG_VA2((LF_GCROOTS, LL_INFO1000000, "No GC info found for call site at offset %x. Defaulting to fully-interruptible information.\n", (int) m_InstructionOffset));
 
         UINT32 numChunks = (numInterruptibleLength + NUM_NORM_CODE_OFFSETS_PER_CHUNK - 1) / NUM_NORM_CODE_OFFSETS_PER_CHUNK;
         UINT32 breakChunk = pseudoBreakOffset / NUM_NORM_CODE_OFFSETS_PER_CHUNK;
@@ -944,6 +948,9 @@ bool GcInfoDecoder::EnumerateLiveSlots(
 
                 if(isLive)
                 {
+                    STRESS_LOG_VA2((LF_GCROOTS, LL_INFO100000, "isLive=true ReportSlotToGC slotIndex=%d.\n", slotIndex));
+
+
                     ReportSlotToGC(
                             slotDecoder,
                             slotIndex,
@@ -958,7 +965,7 @@ bool GcInfoDecoder::EnumerateLiveSlots(
                 slotIndex++;
             }
 
-            LOG((LF_GCROOTS, LL_INFO1000000, "Decoded %d lifetime transitions.\n", (int) lifetimeTransitionsCount ));
+            STRESS_LOG_VA2((LF_GCROOTS, LL_INFO1000000, "Decoded %d lifetime transitions.\n", (int) lifetimeTransitionsCount ));
         }
     }
 
@@ -1573,9 +1580,12 @@ void GcInfoDecoder::ReportRegisterToGC(  // ARM
     _ASSERTE(regNum >= 0 && regNum <= 14);
     _ASSERTE(regNum != 13);  // sp
 
-    LOG((LF_GCROOTS, LL_INFO1000, "Reporting " FMT_REG, regNum ));
+    STRESS_LOG_VA2((LF_GCROOTS, LL_INFO1000, "Reporting " FMT_REG, regNum ));
 
     OBJECTREF* pObjRef = GetRegisterSlot( regNum, pRD );
+
+    STRESS_LOG_VA2((LF_GCROOTS, LL_INFO1000, /* Part Two */
+        "at" FMT_ADDR "as ", DBG_ADDR(pObjRef)));
 
 #ifdef _DEBUG
     if(IsScratchRegister(regNum, pRD))

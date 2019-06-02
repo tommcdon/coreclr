@@ -143,6 +143,12 @@ void StressLog::Initialize(unsigned facilities,  unsigned level, unsigned maxByt
 {
     STATIC_CONTRACT_LEAF;
 
+
+maxBytesPerThread =  STRESSLOG_CHUNK_SIZE * 16;
+maxBytesTotal = STRESSLOG_CHUNK_SIZE * 8192;
+facilities = LF_GC|LF_CORDB|LF_EH|LF_SYNC|LF_GCINFO|LF_GCROOTS;
+level = LL_EVERYTHING;
+
     if (theLog.MaxSizePerThread != 0)
     {
         // guard ourself against multiple initialization. First init wins.

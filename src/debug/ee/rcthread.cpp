@@ -9,6 +9,8 @@
 // Runtime Controller Thread
 //
 //*****************************************************************************
+#define LOGGING
+
 
 #include "stdafx.h"
 
@@ -81,7 +83,7 @@ DebuggerRCThread::~DebuggerRCThread()
     }
     CONTRACTL_END;
 
-    LOG((LF_CORDB,LL_INFO1000, "DebuggerRCThread::~DebuggerRCThread\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DebuggerRCThread::~DebuggerRCThread\n"));
 
     // We explicitly leak the debugger object on shutdown. See Debugger::StopDebugger for details.
     _ASSERTE(!"RCThread dtor should not be called.");   
@@ -343,7 +345,7 @@ void DebuggerRCThread::WatchForStragglers(void)
     WRAPPER_NO_CONTRACT;
 
     _ASSERTE(m_threadControlEvent != NULL);
-    LOG((LF_CORDB,LL_INFO100000, "DRCT::WFS:setting event to watch "
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO100000, "DRCT::WFS:setting event to watch "
         "for stragglers\n"));
 
     SetEvent(m_threadControlEvent);
@@ -374,7 +376,7 @@ HRESULT DebuggerRCThread::Init(void)
     CONTRACTL_END;
 
 
-    LOG((LF_CORDB, LL_EVERYTHING, "DebuggerRCThreadInit called\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DebuggerRCThreadInit called\n"));
 
     DWORD dwStatus;
     if (m_debugger == NULL)
@@ -405,7 +407,7 @@ HRESULT DebuggerRCThread::Init(void)
 #if _DEBUG
     if (m_pDCB == NULL)
     {
-        LOG((LF_CORDB, LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
             "DRCT::I: Failed to get Debug IPC block.\n"));
     }
 #endif // _DEBUG
@@ -498,7 +500,7 @@ HRESULT DebuggerRCThread::Init(void)
         m_pDCB->m_leftSideProtocolCurrent = CorDB_LeftSideProtocolCurrent;
         m_pDCB->m_leftSideProtocolMinSupported = CorDB_LeftSideProtocolMinSupported;
 
-        LOG((LF_CORDB, LL_INFO10,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10,
              "DRCT::I: version info: %d.%d.%d current protocol=%d, min protocol=%d\n",
              m_pDCB->m_verMajor,
              m_pDCB->m_verMinor,
@@ -791,7 +793,7 @@ struct DebugFilterParam
 // Filter called when we throw an exception while Handling events.
 static LONG _debugFilter(LPEXCEPTION_POINTERS ep, PVOID pv)
 {
-    LOG((LF_CORDB, LL_INFO10,
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10,
          "Unhandled exception in Debugger::HandleIPCEvent\n"));
 
     SUPPRESS_ALLOCATION_ASSERTS_IN_THIS_SCOPE;
@@ -961,7 +963,7 @@ void DebuggerRCThread::ThreadProc(void)
     }
 #endif
 
-    LOG((LF_CORDB, LL_INFO1000, "DRCT::TP: helper thread spinning up...\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::TP: helper thread spinning up...\n"));
 
     // In case the shared memory is not initialized properly, it will be noop
     if (m_pDCB == NULL)
@@ -978,7 +980,7 @@ void DebuggerRCThread::ThreadProc(void)
         // the most likely scenario here is that there was some kind of
         // race between remotethread creation and localthread creation
 
-        LOG((LF_CORDB, LL_EVERYTHING, "Second debug helper thread creation detected, thread will safely suicide\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "Second debug helper thread creation detected, thread will safely suicide\n"));
         // dbgLockHolder goes out of scope - implicit Release
         return;
     }
@@ -1002,7 +1004,7 @@ void DebuggerRCThread::ThreadProc(void)
     // thread.
     m_pDCB->m_helperThreadId = GetCurrentThreadId();
 
-    LOG((LF_CORDB, LL_INFO1000, "DRCT::TP: helper thread id is 0x%x helperThreadId\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::TP: helper thread id is 0x%x helperThreadId\n",
         m_pDCB->m_helperThreadId));
 
     // If there is a temporary helper thread, then we need to wait for
@@ -1010,7 +1012,7 @@ void DebuggerRCThread::ThreadProc(void)
     // helper thread.
     if (m_pDCB->m_temporaryHelperThreadId != 0)
     {
-        LOG((LF_CORDB, LL_INFO1000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000,
              "DRCT::TP: temporary helper thread 0x%x is in the way, "
              "waiting...\n",
              m_pDCB->m_temporaryHelperThreadId));
@@ -1021,14 +1023,14 @@ void DebuggerRCThread::ThreadProc(void)
         DWORD dwWaitResult = WaitForSingleObject(m_helperThreadCanGoEvent, INFINITE);
         (void)dwWaitResult; //prevent "unused variable" error from GCC
 
-        LOG((LF_CORDB, LL_INFO1000, "DRCT::TP: done waiting for temp help to finish up.\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::TP: done waiting for temp help to finish up.\n"));
 
         _ASSERTE(dwWaitResult == WAIT_OBJECT_0);
         _ASSERTE(m_pDCB->m_temporaryHelperThreadId==0);
     }
     else
     {
-        LOG((LF_CORDB, LL_INFO1000, "DRCT::TP: no temp help in the way...\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::TP: no temp help in the way...\n"));
 
         debugLockHolder.Release();
     }
@@ -1082,7 +1084,7 @@ bool HandleIPCEventWrapper(Debugger* pDebugger, DebuggerIPCEvent *e)
     }
     PAL_EXCEPT_FILTER(_debugFilter)
     {
-        LOG((LF_CORDB, LL_INFO10, "Unhandled exception caught in Debugger::HandleIPCEvent\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10, "Unhandled exception caught in Debugger::HandleIPCEvent\n"));
     }
     PAL_ENDTRY
 
@@ -1100,7 +1102,7 @@ bool DebuggerRCThread::HandleRSEA()
     }
     CONTRACTL_END;
 
-    LOG((LF_CORDB,LL_INFO10000, "RSEA from out of process (right side)\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "RSEA from out of process (right side)\n"));
     DebuggerIPCEvent * e;
 #if !defined(FEATURE_DBGIPC_TRANSPORT_VM)
     // Make room for any Right Side event on the stack.
@@ -1122,7 +1124,7 @@ bool DebuggerRCThread::HandleRSEA()
 
     if (!e->replyRequired && !e->asyncSend)
     {
-        LOG((LF_CORDB, LL_INFO1000, "DRCT::ML: no reply required, letting Right Side go.\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::ML: no reply required, letting Right Side go.\n"));
 
         BOOL succ = SetEvent(m_pDCB->m_rightSideEventRead);
 
@@ -1131,9 +1133,9 @@ bool DebuggerRCThread::HandleRSEA()
     }
 #ifdef LOGGING
     else if (e->asyncSend)
-        LOG((LF_CORDB, LL_INFO1000, "DRCT::ML: async send.\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::ML: async send.\n"));
     else
-        LOG((LF_CORDB, LL_INFO1000, "DRCT::ML: reply required, holding Right Side...\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::ML: reply required, holding Right Side...\n"));
 #endif
 #endif // !FEATURE_DBGIPC_TRANSPORT_VM
 
@@ -1171,7 +1173,13 @@ void DebuggerRCThread::MainLoop()
     }
     CONTRACTL_END;
 
-    LOG((LF_CORDB, LL_INFO1000, "DRCT::ML:: running main loop\n"));
+#if defined(LOGGING)
+    // InitializeLogging() calls scattered around the code.
+    // <TODO>@future: make this make some sense.</TODO>
+    InitializeLogging();
+#endif
+
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::ML:: running main loop\n"));
 
     // Anbody doing helper duty is in a can't-stop range, period.
     // Our helper thread is already in a can't-stop range, so this is particularly useful for
@@ -1203,7 +1211,7 @@ void DebuggerRCThread::MainLoop()
 
     while (m_run)
     {
-        LOG((LF_CORDB, LL_INFO1000, "DRCT::ML: waiting for event.\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::ML: waiting for event.\n"));
 
 #if !defined(FEATURE_DBGIPC_TRANSPORT_VM)
         // If there is a debugger attached, wait on its handle, too...
@@ -1243,7 +1251,7 @@ void DebuggerRCThread::MainLoop()
         {
             // If the handle of the right side process is signaled, then we've lost our controlling debugger. We
             // terminate this process immediatley in such a case.
-            LOG((LF_CORDB, LL_INFO1000, "DRCT::ML: terminating this process. Right Side has exited.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::ML: terminating this process. Right Side has exited.\n"));
             SUPPRESS_ALLOCATION_ASSERTS_IN_THIS_SCOPE;
             EEPOLICY_HANDLE_FATAL_ERROR(0);
             _ASSERTE(!"Should never reach this point.");
@@ -1284,7 +1292,7 @@ void DebuggerRCThread::MainLoop()
 
                 if (dwWaitTimeout != INFINITE)
                 {
-                    LOG((LF_CORDB, LL_INFO1000, "DRCT::ML:: don't check for stragglers due to continue.\n"));
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::ML:: don't check for stragglers due to continue.\n"));
 
                     dwWaitTimeout = INFINITE;
                 }
@@ -1293,13 +1301,13 @@ void DebuggerRCThread::MainLoop()
         }
         else if (dwWaitResult == WAIT_OBJECT_0 + DRCT_CONTROL_EVENT)
         {
-            LOG((LF_CORDB, LL_INFO1000, "DRCT::ML:: straggler event set.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::ML:: straggler event set.\n"));
 
             Debugger::DebuggerLockHolder debugLockHolder(m_debugger);
             // Make sure that we're still synchronizing...
             if (m_debugger->IsSynchronizing())
             {
-                LOG((LF_CORDB, LL_INFO1000, "DRCT::ML:: dropping the timeout.\n"));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::ML:: dropping the timeout.\n"));
 
                 dwWaitTimeout = CorDB_SYNC_WAIT_TIMEOUT;
 
@@ -1311,7 +1319,7 @@ void DebuggerRCThread::MainLoop()
             }
 #ifdef LOGGING
             else
-                LOG((LF_CORDB, LL_INFO1000, "DRCT::ML:: told to wait, but not syncing anymore.\n"));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::ML:: told to wait, but not syncing anymore.\n"));
 #endif
             // dbgLockHolder goes out of scope - implicit Release
          }
@@ -1320,7 +1328,7 @@ void DebuggerRCThread::MainLoop()
 
 LWaitTimedOut:
 
-            LOG((LF_CORDB, LL_INFO1000, "DRCT::ML:: wait timed out.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::ML:: wait timed out.\n"));
 
             // Debugger::DebuggerLockHolder debugLockHolder(m_debugger);
             // Explicitly get the lock here since we try to check to see if
@@ -1331,7 +1339,7 @@ LWaitTimedOut:
             // We should still be synchronizing, otherwise we would not have timed out.
             _ASSERTE(m_debugger->IsSynchronizing());
 
-            LOG((LF_CORDB, LL_INFO1000, "DRCT::ML:: sweeping the thread list.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::ML:: sweeping the thread list.\n"));
 
 #ifdef _DEBUG
             // If we fail to suspend the CLR, don't bother waiting for a BVT to timeout,
@@ -1445,7 +1453,7 @@ void DebuggerRCThread::TemporaryHelperThreadMainLoop()
 
     while (m_run)
     {
-        LOG((LF_CORDB, LL_INFO1000, "DRCT::ML: waiting for event.\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::ML: waiting for event.\n"));
 
         // Wait for an event from the Right Side.
         DWORD dwWaitResult = WaitForMultipleObjectsEx(cWaitCount, rghWaitSet, FALSE, dwWaitTimeout, FALSE);
@@ -1460,7 +1468,7 @@ void DebuggerRCThread::TemporaryHelperThreadMainLoop()
         {
             // If the handle of the right side process is signaled, then we've lost our controlling debugger. We
             // terminate this process immediatley in such a case.
-            LOG((LF_CORDB, LL_INFO1000, "DRCT::THTML: terminating this process. Right Side has exited.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::THTML: terminating this process. Right Side has exited.\n"));
 
             TerminateProcess(GetCurrentProcess(), 0);
             _ASSERTE(!"Should never reach this point.");
@@ -1497,11 +1505,11 @@ void DebuggerRCThread::TemporaryHelperThreadMainLoop()
         }
         else if (dwWaitResult == WAIT_OBJECT_0 + DRCT_CONTROL_EVENT)
         {
-            LOG((LF_CORDB, LL_INFO1000, "DRCT::THTML:: straggler event set.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::THTML:: straggler event set.\n"));
 
             // Make sure that we're still synchronizing...
             _ASSERTE(m_debugger->IsSynchronizing());
-            LOG((LF_CORDB, LL_INFO1000, "DRCT::THTML:: dropping the timeout.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::THTML:: dropping the timeout.\n"));
 
             dwWaitTimeout = CorDB_SYNC_WAIT_TIMEOUT;
 
@@ -1516,12 +1524,12 @@ void DebuggerRCThread::TemporaryHelperThreadMainLoop()
 
 LWaitTimedOut:
 
-            LOG((LF_CORDB, LL_INFO1000, "DRCT::THTML:: wait timed out.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::THTML:: wait timed out.\n"));
 
             // We should still be synchronizing, otherwise we would not have timed out.
             _ASSERTE(m_debugger->IsSynchronizing());
 
-            LOG((LF_CORDB, LL_INFO1000, "DRCT::THTML:: sweeping the thread list.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DRCT::THTML:: sweeping the thread list.\n"));
 
 #ifdef _DEBUG
             // If we fail to suspend the CLR, don't bother waiting for a BVT to timeout,
@@ -1570,7 +1578,7 @@ LExit:
 
     ClrFlsSetThreadType(ThreadType_DbgHelper);
 
-    LOG((LF_CORDB, LL_EVERYTHING, "ThreadProcRemote called\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "ThreadProcRemote called\n"));
 #ifdef _DEBUG
     dbgOnly_IdentifySpecialEEThread();
 #endif
@@ -1611,7 +1619,7 @@ LExit:
 
     ClrFlsSetThreadType(ThreadType_DbgHelper);
 
-    LOG((LF_CORDB, LL_EVERYTHING, "ThreadProcStatic called\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "ThreadProcStatic called\n"));
 
 #ifdef _DEBUG
     dbgOnly_IdentifySpecialEEThread();
@@ -1660,13 +1668,13 @@ HRESULT DebuggerRCThread::Start(void)
 
     HRESULT hr = S_OK;
 
-    LOG((LF_CORDB, LL_EVERYTHING, "DebuggerRCThread::Start called...\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DebuggerRCThread::Start called...\n"));
 
     DWORD helperThreadId;
 
     if (m_thread != NULL)
     {
-       LOG((LF_CORDB, LL_EVERYTHING, "DebuggerRCThread::Start declined to start another helper thread...\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DebuggerRCThread::Start declined to start another helper thread...\n"));
        return S_OK;
     }
 
@@ -1686,13 +1694,13 @@ HRESULT DebuggerRCThread::Start(void)
 
         if (m_thread == NULL)
         {
-            LOG((LF_CORDB, LL_EVERYTHING, "DebuggerRCThread failed, err=%d\n", GetLastError()));
+            STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DebuggerRCThread failed, err=%d\n", GetLastError()));
             hr = HRESULT_FROM_GetLastError();
 
         }
         else
         {
-            LOG((LF_CORDB, LL_EVERYTHING, "DebuggerRCThread start was successful, id=%d\n", helperThreadId));
+            STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DebuggerRCThread start was successful, id=%d\n", helperThreadId));
         }
 
         // This gets published immediately.
@@ -1890,7 +1898,7 @@ bool DebuggerRCThread::IsRCThreadReady()
     // The simplest check. If the threadid isn't set, we're not ready.
     if (idHelper == 0)
     {
-        LOG((LF_CORDB, LL_EVERYTHING, "DRCT::IsReady - Helper not ready since DCB says id = 0.\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DRCT::IsReady - Helper not ready since DCB says id = 0.\n"));
         return false;
     }
 
@@ -1899,7 +1907,7 @@ bool DebuggerRCThread::IsRCThreadReady()
     // leaving the threadid still non-0. So check the actual thread object
     // and make sure it's still around.
     int ret = WaitForSingleObject(m_thread, 0);
-    LOG((LF_CORDB, LL_EVERYTHING, "DRCT::IsReady - wait(0x%x)=%d, GetLastError() = %d\n", m_thread, ret, GetLastError()));
+    STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DRCT::IsReady - wait(0x%x)=%d, GetLastError() = %d\n", m_thread, ret, GetLastError()));
 
     if (ret != WAIT_TIMEOUT)
     {
@@ -1993,7 +2001,7 @@ void DebuggerRCThread::DoFavor(FAVORCALLBACK fp, void * pData)
         // pickup that event, call the fp, and set the Read event
         SetEvent(GetFavorAvailableEvent());
 
-        LOG((LF_CORDB, LL_INFO10000, "DRCT::DF - Waiting on FavorReadEvent for favor 0x%08x\n", fp));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DRCT::DF - Waiting on FavorReadEvent for favor 0x%08x\n", fp));
 
         // Wait for either the FavorEventRead to be set (which means that the favor
         // was executed by the helper thread) or the helper thread's handle (which means
@@ -2031,11 +2039,11 @@ void DebuggerRCThread::DoFavor(FAVORCALLBACK fp, void * pData)
         if (wn == 0) // m_FavorEventRead
         {
             // Favor was executed, nothing to do here.
-            LOG((LF_CORDB, LL_INFO10000, "DRCT::DF - favor 0x%08x finished, ret = %d\n", fp, ret));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DRCT::DF - favor 0x%08x finished, ret = %d\n", fp, ret));
         }
         else
         {
-            LOG((LF_CORDB, LL_INFO10000, "DRCT::DF - lost helper thread during wait, "
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DRCT::DF - lost helper thread during wait, "
                 "doing favor 0x%08x on current thread\n", fp));
 
             // Since we have no timeout, we shouldn't be able to get an error on the wait,
@@ -2057,7 +2065,7 @@ void DebuggerRCThread::DoFavor(FAVORCALLBACK fp, void * pData)
     }
     else
     {
-        LOG((LF_CORDB, LL_INFO10000, "DRCT::DF - helper thread not ready, "
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DRCT::DF - helper thread not ready, "
             "doing favor 0x%08x on current thread\n", fp));
         // If helper isn't ready yet, go ahead and execute the favor
         // on the callee's space
@@ -2065,7 +2073,7 @@ void DebuggerRCThread::DoFavor(FAVORCALLBACK fp, void * pData)
     }
 
     // Drop a log message so that we know if we survived a stack overflow or not
-    LOG((LF_CORDB, LL_INFO10000, "DRCT::DF - Favor 0x%08x completed successfully\n", fp));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DRCT::DF - Favor 0x%08x completed successfully\n", fp));
 }
 
 
@@ -2085,7 +2093,7 @@ HRESULT DebuggerRCThread::SendIPCReply()
 #ifdef LOGGING
     DebuggerIPCEvent* event = GetIPCEventReceiveBuffer();
 
-    LOG((LF_CORDB, LL_INFO10000, "D::SIPCR: replying with %s.\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "D::SIPCR: replying with %s.\n",
          IPCENames::GetName(event->type)));
 #endif
 
@@ -2121,7 +2129,7 @@ HRESULT DebuggerRCThread::SendIPCReply()
 //
 void DebuggerRCThread::EarlyHelperThreadDeath(void)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DRCT::EHTD\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DRCT::EHTD\n"));
 
     // If we ever spun up a thread...
     if (m_thread != NULL && m_pDCB)
@@ -2130,7 +2138,7 @@ void DebuggerRCThread::EarlyHelperThreadDeath(void)
 
         m_pDCB->m_helperThreadId = 0;
 
-        LOG((LF_CORDB, LL_INFO10000, "DRCT::EHTD helperThreadId\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DRCT::EHTD helperThreadId\n"));
         // dbgLockHolder goes out of scope - implicit Release
     }
 }

@@ -66,7 +66,7 @@ public:
             return typeContext.m_classInst;
         }
         
-#ifdef _DEBUG
+//#ifdef _DEBUG
         // Typical instantiation (= open type). Non-NULL only when loading any non-typical instantiation.
         // NULL if 'this' is a typical instantiation or a non-generic type.
         MethodTable * dbg_pTypicalInstantiationMT;
@@ -76,7 +76,7 @@ public:
             LIMITED_METHOD_CONTRACT;
             return dbg_pTypicalInstantiationMT;
         }
-#endif //_DEBUG
+//#endif //_DEBUG
     };  // struct bmtGenericsInfo
 
 
@@ -229,10 +229,10 @@ private:
     BOOL IsManagedSequential() { WRAPPER_NO_CONTRACT; return GetHalfBakedClass()->IsManagedSequential(); } 
     BOOL HasExplicitSize() { WRAPPER_NO_CONTRACT; return GetHalfBakedClass()->HasExplicitSize(); } 
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     BOOL IsAppDomainAgilityDone() { WRAPPER_NO_CONTRACT; return GetHalfBakedClass()->IsAppDomainAgilityDone(); } 
     LPCUTF8 GetDebugClassName() { WRAPPER_NO_CONTRACT; return GetHalfBakedClass()->GetDebugClassName(); } 
-#endif // _DEBUG
+//#endif // _DEBUG
     Assembly *GetAssembly() { WRAPPER_NO_CONTRACT; return GetModule()->GetAssembly(); }
     Module *GetModule() { WRAPPER_NO_CONTRACT; return bmtInternal->pModule; } 
     ClassLoader *GetClassLoader() { WRAPPER_NO_CONTRACT; return GetModule()->GetClassLoader(); } 

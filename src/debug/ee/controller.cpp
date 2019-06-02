@@ -17,12 +17,16 @@
 // ****************************************************************************
 // Putting code & #includes, #defines, etc, before the stdafx.h will
 // cause the code,etc, to be silently ignored
+#define LOGGING
+
 #include "stdafx.h"
 #include "openum.h"
 #include "../inc/common.h"
 #include "eeconfig.h"
 
 #include "../../vm/methoditer.h"
+
+#include "stresslog.h"
 
 const char *GetTType( TraceType tt);
 
@@ -103,7 +107,7 @@ SharedPatchBypassBuffer* DebuggerControllerPatch::GetOrCreateSharedPatchBypassBu
 #if 1
 void DebuggerPatchTable::SortPatchIntoPatchList(DebuggerControllerPatch **ppPatch)
 {
-    LOG((LF_CORDB, LL_EVERYTHING, "DPT::SPIPL called.\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DPT::SPIPL called.\n"));
 #ifdef _DEBUG
     DebuggerControllerPatch *patchFirst
         = (DebuggerControllerPatch *) Find(Hash((*ppPatch)), Key((*ppPatch)));
@@ -111,11 +115,11 @@ void DebuggerPatchTable::SortPatchIntoPatchList(DebuggerControllerPatch **ppPatc
     _ASSERTE((*ppPatch)->controller->GetDCType() != DEBUGGER_CONTROLLER_STATIC);
 #endif //_DEBUG
     DebuggerControllerPatch *patchNext = GetNextPatch((*ppPatch));
-LOG((LF_CORDB, LL_EVERYTHING, "DPT::SPIPL GetNextPatch passed\n"));
+STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DPT::SPIPL GetNextPatch passed\n"));
     //List contains one, (sorted) element
     if (patchNext == NULL)
     {
-        LOG((LF_CORDB, LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
              "DPT::SPIPL: Patch 0x%x is a sorted singleton\n", (*ppPatch)));
         return;
     }
@@ -141,12 +145,12 @@ LOG((LF_CORDB, LL_EVERYTHING, "DPT::SPIPL GetNextPatch passed\n"));
 
     if (patchNext == GetNextPatch((*ppPatch)))
     {
-        LOG((LF_CORDB, LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
              "DPT::SPIPL: Patch 0x%x is already sorted\n", (*ppPatch)));
         return; //already sorted
     }
 
-    LOG((LF_CORDB, LL_INFO10000,
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
          "DPT::SPIPL: Patch 0x%x will be moved \n", (*ppPatch)));
 
     //remove it from the list
@@ -159,7 +163,7 @@ LOG((LF_CORDB, LL_EVERYTHING, "DPT::SPIPL GetNextPatch passed\n"));
     _ASSERTE(patchCur != NULL);
     SpliceInBackOf((*ppPatch), patchCur);
 
-    LOG((LF_CORDB, LL_INFO10000,
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
          "DPT::SPIPL: Patch 0x%x is now sorted\n", (*ppPatch)));
 }
 
@@ -485,7 +489,7 @@ DebuggerControllerPatch *DebuggerPatchTable::AddPatchForMethodDef(DebuggerContro
     
 
 
-    LOG( (LF_CORDB,LL_INFO10000,"DCP:AddPatchForMethodDef unbound "
+    STRESS_LOG_VA2( (LF_CORDB,LL_INFO10000,"DCP:AddPatchForMethodDef unbound "
         "relative in methodDef 0x%x with dji 0x%x "
         "controller:0x%x AD:0x%x\n", md,
         dji, controller, pAppDomain));
@@ -534,13 +538,19 @@ DebuggerControllerPatch *DebuggerPatchTable::AddPatchForMethodDef(DebuggerContro
     patch->kind = kind;
 
     if (dji)
-        LOG((LF_CORDB,LL_INFO10000,"AddPatchForMethodDef w/ version 0x%04x, "
-        "pid:0x%x\n", dji->m_encVersion, patch->pid));
+    {
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "AddPatchForMethodDef w/ version 0x%04x, "
+            "pid:0x%x\n", dji->m_encVersion, patch->pid));
+    }
     else if (kind == PATCH_KIND_IL_MASTER)
-        LOG((LF_CORDB,LL_INFO10000,"AddPatchForMethodDef w/ version 0x%04x, "
-        "pid:0x%x\n", masterEnCVersion,patch->pid));
+    {
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "AddPatchForMethodDef w/ version 0x%04x, "
+            "pid:0x%x\n", masterEnCVersion, patch->pid));
+    }
     else
-        LOG((LF_CORDB,LL_INFO10000,"AddPatchForMethodDef w/ no dji or dmi, pid:0x%x\n",patch->pid));
+    {
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "AddPatchForMethodDef w/ no dji or dmi, pid:0x%x\n", patch->pid));
+    }
 
 
     // This patch is not yet bound or activated
@@ -588,7 +598,7 @@ DebuggerControllerPatch *DebuggerPatchTable::AddPatchForAddress(DebuggerControll
 
 
     _ASSERTE(kind == PATCH_KIND_NATIVE_MANAGED || kind == PATCH_KIND_NATIVE_UNMANAGED);
-    LOG((LF_CORDB,LL_INFO10000,"DCP:AddPatchForAddress bound "
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DCP:AddPatchForAddress bound "
         "absolute to 0x%x with dji 0x%x (mdDef:0x%x) "
         "controller:0x%x AD:0x%x\n",
         address, dji, (fd!=NULL?fd->GetMemberDef():0), controller,
@@ -638,10 +648,12 @@ DebuggerControllerPatch *DebuggerPatchTable::AddPatchForAddress(DebuggerControll
     patch->kind = kind;
 
     if (dji == NULL)
-        LOG((LF_CORDB,LL_INFO10000,"AddPatchForAddress w/ version with no dji, pid:0x%x\n", patch->pid));
+    {
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "AddPatchForAddress w/ version with no dji, pid:0x%x\n", patch->pid));
+    }
     else
     {
-        LOG((LF_CORDB,LL_INFO10000,"AddPatchForAddress w/ version 0x%04x, "
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"AddPatchForAddress w/ version 0x%04x, "
             "pid:0x%x\n", dji->m_methodInfo->GetCurrentEnCVersion(), patch->pid));
 
         _ASSERTE( fd==NULL || fd == dji->m_fd );
@@ -787,7 +799,7 @@ void DebuggerPatchTable::CheckPatchTable()
             dcp = (DebuggerControllerPatch*)&(((DebuggerControllerPatch *)m_pcEntries)[i]);
             if (dcp->opcode != 0 )
             {
-                LOG((LF_CORDB,LL_INFO1000, "dcp->addr:0x%8x "
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "dcp->addr:0x%8x "
                     "mdMD:0x%8x, offset:0x%x, native:%d\n",
                     dcp->address, dcp->key.md, dcp->offset,
                     dcp->IsNativePatch()));
@@ -853,7 +865,7 @@ void DebuggerController::EnsureUniqueThreadStarter(DebuggerThreadStarter * pNew)
 void DebuggerController::CancelOutstandingThreadStarter(Thread * pThread)
 {
     _ASSERTE(pThread != NULL);
-    LOG((LF_CORDB, LL_EVERYTHING, "DC:CancelOutstandingThreadStarter - checking on thread =0x%p\n", pThread));
+    STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DC:CancelOutstandingThreadStarter - checking on thread =0x%p\n", pThread));
 
     ControllerLockHolder lockController;
     DebuggerController * p = g_controllers;
@@ -863,7 +875,7 @@ void DebuggerController::CancelOutstandingThreadStarter(Thread * pThread)
         {
             if (p->GetThread() == pThread)
             {
-                LOG((LF_CORDB, LL_EVERYTHING, "DC:CancelOutstandingThreadStarter, pThread=0x%p, Found=0x%p\n", p));
+                STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DC:CancelOutstandingThreadStarter, pThread=0x%p, Found=0x%p\n", p));
 
                 // There's only 1 DTS per thread, so once we find it, we can quit.
                 p->Delete();
@@ -965,7 +977,7 @@ DebuggerController::DebuggerController(Thread * pThread, AppDomain * pAppDomain)
     }
     CONTRACTL_END;
 
-    LOG((LF_CORDB, LL_INFO10000, "DC: 0x%x m_eventQueuedCount to 0 - DC::DC\n", this));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC: 0x%x m_eventQueuedCount to 0 - DC::DC\n", this));
     ControllerLockHolder lockController;
     {
         m_next = g_controllers;
@@ -1059,15 +1071,15 @@ void DebuggerController::Delete()
 
     if (m_eventQueuedCount == 0)
     {
-        LOG((LF_CORDB|LF_ENC, LL_INFO100000, "DC::Delete: actual delete of this:0x%x!\n", this));
+        STRESS_LOG_VA2((LF_CORDB|LF_ENC, LL_INFO100000, "DC::Delete: actual delete of this:0x%x!\n", this));
         TRACE_FREE(this);
         DeleteInteropSafe(this);
     }
     else
     {
-        LOG((LF_CORDB|LF_ENC, LL_INFO100000, "DC::Delete: marked for "
+        STRESS_LOG_VA2((LF_CORDB|LF_ENC, LL_INFO100000, "DC::Delete: marked for "
             "future delete of this:0x%x!\n", this));
-        LOG((LF_CORDB|LF_ENC, LL_INFO10000, "DC:0x%x m_eventQueuedCount at 0x%x\n",
+        STRESS_LOG_VA2((LF_CORDB|LF_ENC, LL_INFO10000, "DC:0x%x m_eventQueuedCount at 0x%x\n",
             this, m_eventQueuedCount));
         m_deleted = true;
     }
@@ -1090,7 +1102,7 @@ void DebuggerController::Release(DebuggerControllerPatch *patch)
     patch->refCount--;
     if (patch->refCount == 0)
     {
-        LOG((LF_CORDB, LL_INFO10000, "DCP::R: patch deleted, deactivating\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DCP::R: patch deleted, deactivating\n"));
         DeactivatePatch(patch);
         GetPatchTable()->RemovePatch(patch);
     }
@@ -1115,7 +1127,7 @@ void DebuggerController::DisableAll()
     }
     CONTRACTL_END;
 
-    LOG((LF_CORDB,LL_INFO1000, "DC::DisableAll\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DC::DisableAll\n"));
     _ASSERTE(g_patches != NULL);
 
     ControllerLockHolder ch;
@@ -1172,7 +1184,7 @@ void DebuggerController::Enqueue()
     LIMITED_METHOD_CONTRACT;
 
     m_eventQueuedCount++;
-    LOG((LF_CORDB, LL_INFO10000, "DC::Enq DC:0x%x m_eventQueuedCount at 0x%x\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::Enq DC:0x%x m_eventQueuedCount at 0x%x\n",
         this, m_eventQueuedCount));
 }
 
@@ -1191,7 +1203,7 @@ void DebuggerController::Dequeue()
     }
     CONTRACTL_END;
 
-    LOG((LF_CORDB, LL_INFO10000, "DC::Deq DC:0x%x m_eventQueuedCount at 0x%x\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::Deq DC:0x%x m_eventQueuedCount at 0x%x\n",
     this, m_eventQueuedCount));
     if (--m_eventQueuedCount == 0)
     {
@@ -1277,7 +1289,7 @@ bool DebuggerController::BindPatch(DebuggerControllerPatch *patch,
             //
             if (startAddr == NULL)
             {
-                LOG((LF_CORDB, LL_INFO10000,
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                     "DC::BP:Patch at 0x%x not bindable yet.\n", patch->offset));
 
                 return false;
@@ -1293,7 +1305,7 @@ bool DebuggerController::BindPatch(DebuggerControllerPatch *patch,
 #ifdef LOGGING
     if (info == NULL)
     {
-        LOG((LF_CORDB,LL_INFO10000, "DC::BindPa: For startAddr 0x%x, didn't find a DJI\n", startAddr));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DC::BindPa: For startAddr 0x%x, didn't find a DJI\n", startAddr));
     }
 #endif //LOGGING
     if (info != NULL)
@@ -1306,15 +1318,15 @@ bool DebuggerController::BindPatch(DebuggerControllerPatch *patch,
         // have the address in the patch set.
         if (patch->address != NULL)
         {
-            LOG((LF_CORDB,LL_INFO10000, "DC::BindPa: patch bound recursivley by GetJitInfo, bailing...\n"));
+            STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DC::BindPa: patch bound recursivley by GetJitInfo, bailing...\n"));
             return false;
         }
 
-        LOG((LF_CORDB,LL_INFO10000, "DC::BindPa: For startAddr 0x%x, got DJI "
-             "0x%x, from 0x%x size: 0x%x\n", startAddr, info, info->m_addrOfCode, info->m_sizeOfCode));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DC::BindPa: For startAddr 0x%x, got DJI "
+             "0x%x, from 0x%x size: 0x%x\n", (void*)startAddr, info, (void*)info->m_addrOfCode, info->m_sizeOfCode));
     }
 
-    LOG((LF_CORDB, LL_INFO10000, "DC::BP:Trying to bind patch in %s::%s version %d\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::BP:Trying to bind patch in %s::%s version %d\n",
          fd->m_pszDebugClassName, fd->m_pszDebugMethodName, info ? info->m_encVersion : (SIZE_T)-1));
 
     _ASSERTE(g_patches != NULL);
@@ -1323,7 +1335,7 @@ bool DebuggerController::BindPatch(DebuggerControllerPatch *patch,
                                CodeRegionInfo::GetCodeRegionInfo(NULL, NULL, startAddr).OffsetToAddress(patch->offset);
     g_patches->BindPatch(patch, addr);
 
-    LOG((LF_CORDB, LL_INFO10000, "DC::BP:Binding patch at 0x%x(off:%x)\n", addr, patch->offset));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::BP:Binding patch at 0x%x(off:%x)\n", addr, patch->offset));
 
     return true;
 }
@@ -1342,7 +1354,7 @@ bool DebuggerController::BindPatch(DebuggerControllerPatch *patch,
 //        placed into the code-stream, false otherwise
 bool DebuggerController::ApplyPatch(DebuggerControllerPatch *patch)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DC::ApplyPatch at addr 0x%p\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::ApplyPatch at addr 0x%p\n",
         patch->address));
 
     // If we try to apply an already applied patch, we'll overide our saved opcode
@@ -1390,7 +1402,7 @@ bool DebuggerController::ApplyPatch(DebuggerControllerPatch *patch)
         patch->opcode = CORDbgGetInstruction(patch->address);
 
         CORDbgInsertBreakpoint((CORDB_ADDRESS_TYPE *)patch->address);
-        LOG((LF_CORDB, LL_EVERYTHING, "Breakpoint was inserted at %p for opcode %x\n", patch->address, patch->opcode));
+        STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "Breakpoint was inserted at %p for opcode %x\n", patch->address, patch->opcode));
 
         if (!VirtualProtect(baseAddress,
                             CORDbg_BREAK_INSTRUCTION_SIZE,
@@ -1450,7 +1462,7 @@ bool DebuggerController::UnapplyPatch(DebuggerControllerPatch *patch)
     _ASSERTE(patch->address != NULL);
     _ASSERTE(patch->IsActivated() );
 
-    LOG((LF_CORDB,LL_INFO1000, "DC::UP unapply patch at addr 0x%p\n",
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DC::UP unapply patch at addr 0x%p\n",
         patch->address));
 
     if (patch->IsNativePatch())
@@ -1842,7 +1854,7 @@ DebuggerControllerPatch *DebuggerController::AddILMasterPatch(Module *module,
                                      encVersion,
                                      NULL);
 
-    LOG((LF_CORDB, LL_INFO10000,
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
         "DC::AP: Added IL master patch 0x%p for mdTok 0x%x, desc 0x%p at %s offset %d encVersion %d\n", 
         patch, md, pMethodDescFilter, offsetIsIL ? "il" : "native", offset, encVersion));
 
@@ -1891,7 +1903,7 @@ BOOL DebuggerController::AddBindAndActivateILSlavePatch(DebuggerControllerPatch 
             // but we still want to set the closest breakpoint to that.
             if (!fExact && (masterILOffset != 0))
             {
-                LOG((LF_CORDB, LL_INFO10000, "DC::BP:Failed to bind patch at IL offset 0x%p in %s::%s\n",
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::BP:Failed to bind patch at IL offset 0x%p in %s::%s\n",
                     masterILOffset, dji->m_fd->m_pszDebugClassName, dji->m_fd->m_pszDebugMethodName));
 
                 continue;
@@ -2090,7 +2102,7 @@ BOOL DebuggerController::AddBindAndActivatePatchForMethodDesc(MethodDesc *fd,
     BOOL ok = FALSE;
     ControllerLockHolder ch;
 
-    LOG((LF_CORDB|LF_ENC,LL_INFO10000,"DC::AP: Add to %s::%s, at offs 0x%x "
+    STRESS_LOG_VA2((LF_CORDB|LF_ENC,LL_INFO10000,"DC::AP: Add to %s::%s, at offs 0x%x "
             "fp:0x%x AD:0x%x\n", fd->m_pszDebugClassName,
             fd->m_pszDebugMethodName,
             nativeOffset, fp.GetSPValue(), pAppDomain));
@@ -2110,7 +2122,7 @@ BOOL DebuggerController::AddBindAndActivatePatchForMethodDesc(MethodDesc *fd,
 
     if (DebuggerController::BindPatch(patch, fd, NULL))
     {
-        LOG((LF_CORDB|LF_ENC,LL_INFO1000,"BindPatch went fine, doing ActivatePatch\n"));
+        STRESS_LOG_VA2((LF_CORDB|LF_ENC,LL_INFO1000,"BindPatch went fine, doing ActivatePatch\n"));
         DebuggerController::ActivatePatch(patch);
         ok = TRUE;
     }
@@ -2166,7 +2178,7 @@ void DebuggerController::RemovePatchesFromModule(Module *pModule, AppDomain *pAp
     }
     CONTRACTL_END;
 
-    LOG((LF_CORDB, LL_INFO100000, "DPT::CPFM mod:0x%p (%S)\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DPT::CPFM mod:0x%p (%S)\n",
         pModule, pModule->GetDebugName()));
 
     // First find all patches of interest
@@ -2202,7 +2214,7 @@ void DebuggerController::RemovePatchesFromModule(Module *pModule, AppDomain *pAp
 
         if (fRemovePatch)
         {
-            LOG((LF_CORDB, LL_EVERYTHING, "Removing patch 0x%p\n",
+            STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "Removing patch 0x%p\n",
                 patch));
             // we shouldn't be both hitting this patch AND
             // unloading the module it belongs to.
@@ -2282,7 +2294,7 @@ static bool _AddrIsJITHelper(PCODE addr)
         {
             if (hlpFuncTable[i].pfnHelper == (void*)addr)
             {
-                LOG((LF_CORDB, LL_INFO10000,
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                         "_ANIM: address of helper function found: 0x%08x\n",
                         addr));
                 return true;
@@ -2293,14 +2305,14 @@ static bool _AddrIsJITHelper(PCODE addr)
         {
             if (hlpDynamicFuncTable[d].pfnHelper == (void*)addr)
             {
-                LOG((LF_CORDB, LL_INFO10000,
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                         "_ANIM: address of helper function found: 0x%08x\n",
                         addr));
                 return true;
             }
         }
 
-        LOG((LF_CORDB, LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
              "_ANIM: address within runtime dll, but not a helper function "
              "0x%08x\n", addr));
     }
@@ -2338,7 +2350,7 @@ bool DebuggerController::PatchTrace(TraceDestination *trace,
     {
     case TRACE_ENTRY_STUB:  // fall through
     case TRACE_UNMANAGED:
-        LOG((LF_CORDB, LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
              "DC::PT: Setting unmanaged trace patch at 0x%p(%p)\n",
              trace->GetAddress(), fp.GetSPValue()));
 
@@ -2352,13 +2364,13 @@ bool DebuggerController::PatchTrace(TraceDestination *trace,
         }
         else
         {
-            LOG((LF_CORDB, LL_INFO10000, "DC::PT: decided to NOT "
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::PT: decided to NOT "
                 "place a patch in unmanaged code\n"));
             return false;
         }
 
     case TRACE_MANAGED:
-        LOG((LF_CORDB, LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
              "Setting managed trace patch at 0x%p(%p)\n", trace->GetAddress(), fp.GetSPValue()));
 
         MethodDesc *fd;
@@ -2393,7 +2405,7 @@ bool DebuggerController::PatchTrace(TraceDestination *trace,
     case TRACE_UNJITTED_METHOD:
         // trace->address is actually a MethodDesc* of the method that we'll
         // soon JIT, so put a relative bp at offset zero in.
-        LOG((LF_CORDB, LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
             "Setting unjitted method patch in MethodDesc 0x%p %s\n", trace->GetMethodDesc(), trace->GetMethodDesc() ? trace->GetMethodDesc()->m_pszDebugMethodName : ""));
 
         // Note: we have to make sure to bind here. If this function is prejitted, this may be our only chance to get a
@@ -2402,7 +2414,7 @@ bool DebuggerController::PatchTrace(TraceDestination *trace,
         return true;
 
     case TRACE_FRAME_PUSH:
-        LOG((LF_CORDB, LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
              "Setting frame patch at 0x%p(%p)\n", trace->GetAddress(), fp.GetSPValue()));
 
         AddAndActivateNativePatchForAddress((CORDB_ADDRESS_TYPE *)trace->GetAddress(),
@@ -2412,7 +2424,7 @@ bool DebuggerController::PatchTrace(TraceDestination *trace,
         return true;
 
     case TRACE_MGR_PUSH:
-        LOG((LF_CORDB, LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
              "Setting frame patch (TRACE_MGR_PUSH) at 0x%p(%p)\n",
              trace->GetAddress(), fp.GetSPValue()));
 
@@ -2430,7 +2442,7 @@ bool DebuggerController::PatchTrace(TraceDestination *trace,
         return true;
 
     case TRACE_OTHER:
-        LOG((LF_CORDB, LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
              "Can't set a trace patch for TRACE_OTHER...\n"));
         return false;
 
@@ -2456,7 +2468,7 @@ bool DebuggerController::MatchPatch(Thread *thread,
                                     CONTEXT *context,
                                     DebuggerControllerPatch *patch)
 {
-    LOG((LF_CORDB, LL_INFO100000, "DC::MP: EIP:0x%p\n", GetIP(context)));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DC::MP: EIP:0x%p\n", GetIP(context)));
 
     // Caller should have already matched our addresses.
     if (patch->address != dac_cast<PTR_CORDB_ADDRESS_TYPE>(GetIP(context)))
@@ -2473,7 +2485,7 @@ bool DebuggerController::MatchPatch(Thread *thread,
 
         if (pAppDomainCur != patch->pAppDomain)
         {
-            LOG((LF_CORDB, LL_INFO10000, "DC::MP: patches didn't match b/c of "
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::MP: patches didn't match b/c of "
                 "appdomains!\n"));
             return false;
         }
@@ -2481,7 +2493,7 @@ bool DebuggerController::MatchPatch(Thread *thread,
 
     if (patch->controller->m_thread != NULL && patch->controller->m_thread != thread)
     {
-        LOG((LF_CORDB, LL_INFO10000, "DC::MP: patches didn't match b/c threads\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::MP: patches didn't match b/c threads\n"));
         return false;
     }
 
@@ -2498,14 +2510,14 @@ bool DebuggerController::MatchPatch(Thread *thread,
 
         if (info.HasReturnFrame() && IsCloserToLeaf(info.m_returnFrame.fp, patch->fp))
         {
-            LOG((LF_CORDB, LL_INFO10000, "Patch hit but frame not matched at %p (current=%p, patch=%p)\n",
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "Patch hit but frame not matched at %p (current=%p, patch=%p)\n",
                 patch->address, info.m_returnFrame.fp.GetSPValue(), patch->fp.GetSPValue()));
 
             return false;
         }
     }
 
-    LOG((LF_CORDB, LL_INFO100000, "DC::MP: Returning true"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DC::MP: Returning true"));
 
     return true;
 }
@@ -2521,7 +2533,7 @@ DebuggerPatchSkip *DebuggerController::ActivatePatchSkip(Thread *thread,
     }
 #endif
 
-    LOG((LF_CORDB,LL_INFO10000, "DC::APS thread=0x%p pc=0x%p fForEnc=%d\n",
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DC::APS thread=0x%p pc=0x%p fForEnc=%d\n",
         thread, PC, fForEnC));
     _ASSERTE(g_patches != NULL);
 
@@ -2555,7 +2567,7 @@ DebuggerPatchSkip *DebuggerController::ActivatePatchSkip(Thread *thread,
         // this one.
         //
         // !!! check result
-        LOG((LF_CORDB,LL_INFO10000, "DC::APS: About to skip from PC=0x%p\n", PC));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DC::APS: About to skip from PC=0x%p\n", PC));
         skip = new (interopsafe) DebuggerPatchSkip(thread, patch, thread->GetDomain());
         TRACE_ALLOC(skip);
     }
@@ -2593,7 +2605,7 @@ DPOSS_ACTION DebuggerController::ScanForTriggers(CORDB_ADDRESS_TYPE *address,
 
     CONTRACT_VIOLATION(ThrowsViolation);
 
-    LOG((LF_CORDB, LL_INFO10000, "DC::SFT: starting scan for addr:0x%p"
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::SFT: starting scan for addr:0x%p"
             " thread:0x%x\n", address, thread));
 
     _ASSERTE( pTpr != NULL );
@@ -2632,7 +2644,7 @@ DPOSS_ACTION DebuggerController::ScanForTriggers(CORDB_ADDRESS_TYPE *address,
         DebuggerControllerPatch *patchNext
           = g_patches->GetNextPatch(patch);
 
-        LOG((LF_CORDB, LL_INFO10000, "DC::SFT: patch 0x%x, patchNext 0x%x\n", patch, patchNext));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::SFT: patch 0x%x, patchNext 0x%x\n", patch, patchNext));
 
         // Annoyingly, TriggerPatch may add patches, which may cause
         // the patch table to move, which may, in turn, invalidate
@@ -2646,7 +2658,7 @@ DPOSS_ACTION DebuggerController::ScanForTriggers(CORDB_ADDRESS_TYPE *address,
 
         if (MatchPatch(thread, context, patch))
         {
-            LOG((LF_CORDB, LL_INFO10000, "DC::SFT: patch matched\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::SFT: patch matched\n"));
             AddRef(patch);
 
             // We are hitting a patch at a virtual trace call target, so let's trigger trace call here.
@@ -2729,7 +2741,7 @@ DPOSS_ACTION DebuggerController::ScanForTriggers(CORDB_ADDRESS_TYPE *address,
     if (stWhat & ST_SINGLE_STEP &&
         tpr != TPR_TRIGGER_ONLY_THIS)
     {
-        LOG((LF_CORDB, LL_INFO10000, "DC::SFT: Trigger controllers with single step\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::SFT: Trigger controllers with single step\n"));
 
         //
         // Now, go ahead & trigger all controllers with
@@ -2789,7 +2801,7 @@ DPOSS_ACTION DebuggerController::ScanForTriggers(CORDB_ADDRESS_TYPE *address,
     // Significant speed increase from single dereference, I bet :)
     (*pTpr) = tpr;
 
-    LOG((LF_CORDB, LL_INFO10000, "DC::SFT returning 0x%x as used\n",used));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::SFT returning 0x%x as used\n",used));
     return used;
 }
 
@@ -2867,7 +2879,7 @@ DPOSS_ACTION DebuggerController::DispatchPatchOrSingleStep(Thread *thread, CONTE
 
     CONTRACT_VIOLATION(ThrowsViolation);
 
-    LOG((LF_CORDB|LF_ENC,LL_INFO1000,"DC:DPOSS at 0x%x trigger:0x%x\n", address, which));
+    STRESS_LOG_VA2((LF_CORDB|LF_ENC,LL_INFO1000,"DC:DPOSS at 0x%x trigger:0x%x\n", address, which));
 
     // We should only have an exception if some managed thread was running.
     // Thus we should never be here when we're stopped.
@@ -2879,7 +2891,7 @@ DPOSS_ACTION DebuggerController::DispatchPatchOrSingleStep(Thread *thread, CONTE
     if (!g_patchTableValid)
     {
 
-        LOG((LF_CORDB|LF_ENC, LL_INFO1000, "DC::DPOSS returning, no patch table.\n"));
+        STRESS_LOG_VA2((LF_CORDB|LF_ENC, LL_INFO1000, "DC::DPOSS returning, no patch table.\n"));
         RETURN (used);
     }
     _ASSERTE(g_patches != NULL);
@@ -2898,7 +2910,7 @@ DPOSS_ACTION DebuggerController::DispatchPatchOrSingleStep(Thread *thread, CONTE
 
     if (dcpEnCOriginal)
     {
-        LOG((LF_CORDB|LF_ENC,LL_INFO10000, "DC::DPOSS EnC short-circuit\n"));
+        STRESS_LOG_VA2((LF_CORDB|LF_ENC,LL_INFO10000, "DC::DPOSS EnC short-circuit\n"));
         TP_RESULT tpres =
             dcpEnCOriginal->controller->TriggerPatch(dcpEnCOriginal,
                                                      thread,
@@ -2921,13 +2933,13 @@ DPOSS_ACTION DebuggerController::DispatchPatchOrSingleStep(Thread *thread, CONTE
             // EnC patch still there should be treated as a new patch.  Any RemapComplete patch will have been
             // already removed by patch processing.
             dcpEnCOriginal = NULL;
-            LOG((LF_CORDB|LF_ENC,LL_INFO10000, "DC::DPOSS done EnC short-circuit, exiting\n"));
+            STRESS_LOG_VA2((LF_CORDB|LF_ENC,LL_INFO10000, "DC::DPOSS done EnC short-circuit, exiting\n"));
             used = DPOSS_USED_WITH_EVENT;    // indicate that we handled a patch
             goto Exit;
         }
 
         _ASSERTE(tpres==TPR_IGNORE);
-        LOG((LF_CORDB|LF_ENC,LL_INFO10000, "DC::DPOSS done EnC short-circuit, ignoring\n"));
+        STRESS_LOG_VA2((LF_CORDB|LF_ENC,LL_INFO10000, "DC::DPOSS done EnC short-circuit, ignoring\n"));
         // if we got here, then the EnC remap opportunity was not taken, so just continue on.
     }
 #endif // EnC_SUPPORTED
@@ -2936,7 +2948,7 @@ DPOSS_ACTION DebuggerController::DispatchPatchOrSingleStep(Thread *thread, CONTE
 
     used = ScanForTriggers((CORDB_ADDRESS_TYPE *)address, thread, context, &dcq, which, &tpr);
 
-    LOG((LF_CORDB|LF_ENC, LL_EVERYTHING, "DC::DPOSS ScanForTriggers called and returned.\n"));
+    STRESS_LOG_VA2((LF_CORDB|LF_ENC, LL_EVERYTHING, "DC::DPOSS ScanForTriggers called and returned.\n"));
 
 
     // If we setip, then that will change the address in the context.
@@ -2944,11 +2956,11 @@ DPOSS_ACTION DebuggerController::DispatchPatchOrSingleStep(Thread *thread, CONTE
     // If it did change, then don't dispatch our current event.
     originalAddress = (TADDR) address;
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     // If we do a SetIP after this point, the value of address will be garbage.  Set it to a distictive pattern now, so
     // we don't accidentally use what will (98% of the time) appear to be a valid value.
     address = (CORDB_ADDRESS_TYPE *)(UINT_PTR)0xAABBCCFF;
-#endif //_DEBUG
+//#endif //_DEBUG
 
     if (dcq.dcqGetCount()> 0)
     {        
@@ -2998,9 +3010,9 @@ DPOSS_ACTION DebuggerController::DispatchPatchOrSingleStep(Thread *thread, CONTE
         // deleted before we got a chance to get the EventSending lock.)
         if (anyEventsSent)
         {
-            LOG((LF_CORDB|LF_ENC, LL_EVERYTHING, "DC::DPOSS We sent an event\n"));
+            STRESS_LOG_VA2((LF_CORDB|LF_ENC, LL_EVERYTHING, "DC::DPOSS We sent an event\n"));
             g_pDebugger->SyncAllThreads(SENDIPCEVENT_PtrDbgLockHolder);
-            LOG((LF_CORDB,LL_INFO1000, "SAT called!\n"));
+            STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "SAT called!\n"));
         }
 
 
@@ -3052,7 +3064,7 @@ Exit:
     // patch. We want to skip old patches, but handle new patches.
     if (dcpEnCOriginal == NULL && dcpEnCCurrent != NULL)
     {
-        LOG((LF_CORDB|LF_ENC,LL_INFO10000, "DC::DPOSS EnC post-processing\n"));
+        STRESS_LOG_VA2((LF_CORDB|LF_ENC,LL_INFO10000, "DC::DPOSS EnC post-processing\n"));
             dcpEnCCurrent->controller->TriggerPatch( dcpEnCCurrent,
                                                      thread,
                                                      TY_SHORT_CIRCUIT);
@@ -3169,7 +3181,7 @@ void DebuggerController::EnableSingleStep(Thread *pThread)
     }
     CONTRACTL_END;
 
-    LOG((LF_CORDB,LL_INFO1000, "DC::EnableSingleStep\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DC::EnableSingleStep\n"));
 
     _ASSERTE(pThread != NULL);
 
@@ -3193,7 +3205,7 @@ void DebuggerController::DisableSingleStep()
 
     _ASSERTE(m_thread != NULL);
 
-    LOG((LF_CORDB,LL_INFO1000, "DC::DisableSingleStep\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DC::DisableSingleStep\n"));
 
     ControllerLockHolder lockController;
     {
@@ -3224,7 +3236,7 @@ void DebuggerController::DisableSingleStep()
 //
 void DebuggerController::ApplyTraceFlag(Thread *thread)
 {
-    LOG((LF_CORDB,LL_INFO1000, "DC::ApplyTraceFlag thread:0x%x [0x%0x]\n", thread, Debugger::GetThreadIdHelper(thread)));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DC::ApplyTraceFlag thread:0x%x [0x%0x]\n", thread, Debugger::GetThreadIdHelper(thread)));
 
     CONTEXT *context;
     if(thread->GetInteropDebuggingHijacked())
@@ -3240,10 +3252,10 @@ void DebuggerController::ApplyTraceFlag(Thread *thread)
 
 
     g_pEEInterface->MarkThreadForDebugStepping(thread, true);
-    LOG((LF_CORDB,LL_INFO1000, "DC::ApplyTraceFlag marked thread for debug stepping\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DC::ApplyTraceFlag marked thread for debug stepping\n"));
     
     SetSSFlag(reinterpret_cast<DT_CONTEXT *>(context) ARM_ARG(thread));
-    LOG((LF_CORDB,LL_INFO1000, "DC::ApplyTraceFlag Leaving, baby!\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DC::ApplyTraceFlag Leaving, baby!\n"));
 }
 
 //
@@ -3253,7 +3265,7 @@ void DebuggerController::ApplyTraceFlag(Thread *thread)
 
 void DebuggerController::UnapplyTraceFlag(Thread *thread)
 {
-    LOG((LF_CORDB,LL_INFO1000, "DC::UnapplyTraceFlag thread:0x%x\n", thread));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DC::UnapplyTraceFlag thread:0x%x\n", thread));
 
 
     // Either this is the helper thread, or we're manipulating our own context.
@@ -3274,7 +3286,7 @@ void DebuggerController::UnapplyTraceFlag(Thread *thread)
         // we'd actually hit this.
         // @todo - is there a path if TriggerUnwind() calls DisableAll(). But why would
         CONSISTENCY_CHECK_MSGF(false, ("How did we get here?. thread=%p\n", thread));
-        LOG((LF_CORDB,LL_INFO1000, "DC::UnapplyTraceFlag couldn't get context.\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DC::UnapplyTraceFlag couldn't get context.\n"));
         return;
     }
 
@@ -3343,11 +3355,11 @@ BOOL DebuggerController::DispatchExceptionHook(Thread *thread,
     }
     CONTRACTL_END;
 
-    LOG((LF_CORDB, LL_INFO1000, "DC:: DispatchExceptionHook\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DC:: DispatchExceptionHook\n"));
 
     if (!g_patchTableValid)
     {
-        LOG((LF_CORDB, LL_INFO1000, "DC::DEH returning, no patch table.\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DC::DEH returning, no patch table.\n"));
         return (TRUE);
     }
 
@@ -3368,13 +3380,13 @@ BOOL DebuggerController::DispatchExceptionHook(Thread *thread,
             && (p->m_thread == NULL || p->m_thread == thread) &&
             tpr != TPR_IGNORE_AND_STOP)
         {
-                        LOG((LF_CORDB, LL_INFO1000, "DC::DEH calling TEH...\n"));
+                        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DC::DEH calling TEH...\n"));
             tpr = p->TriggerExceptionHook(thread, context , pException);
-                        LOG((LF_CORDB, LL_INFO1000, "DC::DEH ... returned.\n"));
+                        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DC::DEH ... returned.\n"));
 
             if (tpr == TPR_IGNORE_AND_STOP)
             {
-                LOG((LF_CORDB, LL_INFO1000, "DC:: DEH: leaving early!\n"));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DC:: DEH: leaving early!\n"));
                 break;
             }
         }
@@ -3382,7 +3394,7 @@ BOOL DebuggerController::DispatchExceptionHook(Thread *thread,
         p = pNext;
     }
 
-    LOG((LF_CORDB, LL_INFO1000, "DC:: DEH: returning 0x%x!\n", tpr));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DC:: DEH: returning 0x%x!\n", tpr));
 
     return (tpr != TPR_IGNORE_AND_STOP);
 }
@@ -3403,7 +3415,7 @@ void DebuggerController::EnableUnwind(FramePointer fp)
     CONTRACTL_END;
 
     ASSERT(m_thread != NULL);
-    LOG((LF_CORDB,LL_EVERYTHING,"DC:EU EnableUnwind at 0x%x\n", fp.GetSPValue()));
+    STRESS_LOG_VA2((LF_CORDB,LL_EVERYTHING,"DC:EU EnableUnwind at 0x%x\n", fp.GetSPValue()));
 
     ControllerLockHolder lockController;
     m_unwindFP = fp;
@@ -3433,7 +3445,7 @@ void DebuggerController::DisableUnwind()
 
     ASSERT(m_thread != NULL);
 
-    LOG((LF_CORDB,LL_INFO1000, "DC::DU\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DC::DU\n"));
 
     ControllerLockHolder lockController;
     
@@ -3471,7 +3483,7 @@ bool DebuggerController::DispatchUnwind(Thread *thread,
 
     bool used = false;
 
-    LOG((LF_CORDB, LL_INFO10000, "DC: Dispatch Unwind\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC: Dispatch Unwind\n"));
 
     ControllerLockHolder lockController;
     {
@@ -3485,7 +3497,7 @@ bool DebuggerController::DispatchUnwind(Thread *thread,
 
             if (p->m_thread == thread && p->m_unwindFP != LEAF_MOST_FRAME)
             {
-                LOG((LF_CORDB, LL_INFO10000, "Dispatch Unwind: Found candidate\n"));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "Dispatch Unwind: Found candidate\n"));
 
 
                 //  Assumptions here:
@@ -3531,7 +3543,7 @@ bool DebuggerController::DispatchUnwind(Thread *thread,
                     // other threads may be waiting to patch or unpatch something,
                     // or to dispatch.
                     //
-                    LOG((LF_CORDB, LL_INFO10000,
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                         "Unwind trigger at offset 0x%p; handlerFP: 0x%p unwindReason: 0x%x.\n",
                          newOffset, handlerFP.GetSPValue(), unwindReason));
 
@@ -3543,7 +3555,7 @@ bool DebuggerController::DispatchUnwind(Thread *thread,
                 }
                 else
                 {
-                    LOG((LF_CORDB, LL_INFO10000,
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                         "Unwind trigger at offset 0x%p; handlerFP: 0x%p unwindReason: 0x%x.\n",
                          newOffset, handlerFP.GetSPValue(), unwindReason));
                 }
@@ -3577,7 +3589,7 @@ void DebuggerController::EnableTraceCall(FramePointer maxFrame)
 
     ASSERT(m_thread != NULL);
 
-    LOG((LF_CORDB,LL_INFO1000, "DC::ETC maxFrame=0x%x, thread=0x%x\n",
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DC::ETC maxFrame=0x%x, thread=0x%x\n",
          maxFrame.GetSPValue(), Debugger::GetThreadIdHelper(m_thread)));
 
     // JMC stepper should never enabled this. (They should enable ME instead).
@@ -3650,7 +3662,7 @@ void DebuggerController::DisableTraceCall()
     {
         if (m_traceCall)
         {
-            LOG((LF_CORDB,LL_INFO1000, "DC::DTC thread=0x%x\n",
+            STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DC::DTC thread=0x%x\n",
              Debugger::GetThreadIdHelper(m_thread)));
 
             g_pEEInterface->DisableTraceCall(m_thread);            
@@ -3717,7 +3729,7 @@ bool DebuggerController::DispatchTraceCall(Thread *thread,
 
     bool used = false;
 
-    LOG((LF_CORDB, LL_INFO10000,
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
          "DC::DTC: TraceCall at 0x%x\n", ip));
 
     ControllerLockHolder lockController;
@@ -3840,14 +3852,14 @@ void DebuggerController::EnableMethodEnter()
     _ASSERTE(g_cTotalMethodEnter >= 0);
     if (!m_fEnableMethodEnter)
     {
-        LOG((LF_CORDB, LL_INFO1000000, "DC::EnableME, this=%p, previously disabled\n", this));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000000, "DC::EnableME, this=%p, previously disabled\n", this));
         m_fEnableMethodEnter = true;
 
         g_cTotalMethodEnter++;
     }
     else
     {
-        LOG((LF_CORDB, LL_INFO1000000, "DC::EnableME, this=%p, already set\n", this));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000000, "DC::EnableME, this=%p, already set\n", this));
     }    
     g_pDebugger->UpdateAllModuleJMCFlag(g_cTotalMethodEnter != 0); // Needs JitInfo lock
 }
@@ -3869,7 +3881,7 @@ void DebuggerController::DisableMethodEnter()
         
     if (m_fEnableMethodEnter)
     {
-        LOG((LF_CORDB, LL_INFO1000000, "DC::DisableME, this=%p, previously set\n", this));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000000, "DC::DisableME, this=%p, previously set\n", this));
         m_fEnableMethodEnter = false;
 
         g_cTotalMethodEnter--;
@@ -3877,7 +3889,7 @@ void DebuggerController::DisableMethodEnter()
     }
     else
     {
-        LOG((LF_CORDB, LL_INFO1000000, "DC::DisableME, this=%p, already disabled\n", this));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000000, "DC::DisableME, this=%p, already disabled\n", this));
     }
 
     g_pDebugger->UpdateAllModuleJMCFlag(g_cTotalMethodEnter != 0); // Needs JitInfo lock
@@ -3902,7 +3914,7 @@ void DebuggerController::DispatchMethodEnter(void * pIP, FramePointer fp)
         return;
     }
 
-    LOG((LF_CORDB, LL_INFO100000, "DC::DispatchMethodEnter for '%s::%s'\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DC::DispatchMethodEnter for '%s::%s'\n",
         dji->m_fd->m_pszDebugClassName,
         dji->m_fd->m_pszDebugMethodName));
 
@@ -3959,12 +3971,12 @@ void DebuggerController::RemoveProtection(const BYTE *start, const BYTE *end,
 // Default implementations for FuncEvalEnter & Exit notifications.
 void DebuggerController::TriggerFuncEvalEnter(Thread * thread)
 {
-    LOG((LF_CORDB, LL_INFO100000, "DC::TFEEnter, thead=%p, this=%p\n", thread, this));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DC::TFEEnter, thead=%p, this=%p\n", thread, this));
 }
 
 void DebuggerController::TriggerFuncEvalExit(Thread * thread)
 {
-    LOG((LF_CORDB, LL_INFO100000, "DC::TFEExit, thead=%p, this=%p\n", thread, this));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DC::TFEExit, thead=%p, this=%p\n", thread, this));
 }
 
 // bool DebuggerController::TriggerPatch()   What: Tells the
@@ -3976,14 +3988,14 @@ TP_RESULT DebuggerController::TriggerPatch(DebuggerControllerPatch *patch,
                               Thread *thread,
                               TRIGGER_WHY tyWhy)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DC::TP: in default TriggerPatch\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::TP: in default TriggerPatch\n"));
     return TPR_IGNORE;
 }
 
 bool DebuggerController::TriggerSingleStep(Thread *thread,
                                            const BYTE *ip)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DC::TP: in default TriggerSingleStep\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::TP: in default TriggerSingleStep\n"));
     return false;
 }
 
@@ -3992,19 +4004,19 @@ void DebuggerController::TriggerUnwind(Thread *thread,
                                        FramePointer fp,
                                        CorDebugStepReason unwindReason)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DC::TP: in default TriggerUnwind\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::TP: in default TriggerUnwind\n"));
 }
 
 void DebuggerController::TriggerTraceCall(Thread *thread,
                                           const BYTE *ip)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DC::TP: in default TriggerTraceCall\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::TP: in default TriggerTraceCall\n"));
 }
 
 TP_RESULT DebuggerController::TriggerExceptionHook(Thread *thread, CONTEXT * pContext,
                                               EXCEPTION_RECORD *exception)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DC::TP: in default TriggerExceptionHook\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::TP: in default TriggerExceptionHook\n"));
     return TPR_IGNORE;
 }
 
@@ -4013,7 +4025,7 @@ void DebuggerController::TriggerMethodEnter(Thread * thread,
                                             const BYTE * ip,
                                             FramePointer fp)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DC::TME in default impl. dji=%p, addr=%p, fp=%p\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::TME in default impl. dji=%p, addr=%p, fp=%p\n",
         dji, ip, fp.GetSPValue()));
 }
 
@@ -4027,7 +4039,7 @@ bool DebuggerController::SendEvent(Thread *thread, bool fIpChanged)
     }
     CONTRACTL_END;
 
-    LOG((LF_CORDB, LL_INFO10000, "DC::TP: in default SendEvent\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::TP: in default SendEvent\n"));
 
     // If any derived class trigger SendEvent, it should also implement SendEvent.
     _ASSERTE(false || !"Base DebuggerController sending an event?");
@@ -4038,7 +4050,7 @@ bool DebuggerController::SendEvent(Thread *thread, bool fIpChanged)
 // Dispacth Func-Eval Enter & Exit notifications.
 void DebuggerController::DispatchFuncEvalEnter(Thread * thread)
 {
-    LOG((LF_CORDB, LL_INFO100000, "DC::DispatchFuncEvalEnter for thread 0x%p\n", thread));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DC::DispatchFuncEvalEnter for thread 0x%p\n", thread));
 
     ControllerLockHolder lockController;
 
@@ -4058,7 +4070,7 @@ void DebuggerController::DispatchFuncEvalEnter(Thread * thread)
 
 void DebuggerController::DispatchFuncEvalExit(Thread * thread)
 {
-    LOG((LF_CORDB, LL_INFO100000, "DC::DispatchFuncEvalExit for thread 0x%p\n", thread));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DC::DispatchFuncEvalExit for thread 0x%p\n", thread));
 
     ControllerLockHolder lockController;
 
@@ -4132,8 +4144,8 @@ bool DebuggerController::DispatchNativeException(EXCEPTION_RECORD *pException,
     }
     CONTRACTL_END;
 
-    LOG((LF_CORDB, LL_EVERYTHING, "DispatchNativeException was called\n"));
-    LOG((LF_CORDB, LL_INFO10000, "Native exception at 0x%p, code=0x%8x, context=0x%p, er=0x%p\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DispatchNativeException was called\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "Native exception at 0x%p, code=0x%8x, context=0x%p, er=0x%p\n",
          pException->ExceptionAddress, dwCode, pContext, pException));
 
 
@@ -4151,7 +4163,7 @@ bool DebuggerController::DispatchNativeException(EXCEPTION_RECORD *pException,
     // So we ignore those to avoid the lock violation.
     if (pException->ExceptionCode == EXCEPTION_MSVC)
     {
-        LOG((LF_CORDB, LL_INFO1000, "Debugger skipping for C++ exception.\n"));         
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "Debugger skipping for C++ exception.\n"));         
         return FALSE;
     }
 
@@ -4162,7 +4174,7 @@ bool DebuggerController::DispatchNativeException(EXCEPTION_RECORD *pException,
     // we should be operating on (see code:GetManagedStoppedCtx).
     if( ISREDIRECTEDTHREAD(pCurThread) )
     {
-        LOG((LF_CORDB, LL_INFO1000, "Debugger ignoring exception 0x%x on redirected thread.\n", dwCode));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "Debugger ignoring exception 0x%x on redirected thread.\n", dwCode));
 
         // We shouldn't be seeing debugging exceptions on a redirected thread.  While a thread is
         // redirected we only call a few internal things (see code:Thread.RedirectedHandledJITCase),
@@ -4254,14 +4266,14 @@ bool DebuggerController::DispatchNativeException(EXCEPTION_RECORD *pException,
         // This is what would disable the ss-flag when single-stepping over an AV.
         if (g_patchTableValid && (dwCode != EXCEPTION_SINGLE_STEP))
         {
-            LOG((LF_CORDB, LL_INFO1000, "DC::DNE non-single-step exception; check if any controller has ss turned on\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DC::DNE non-single-step exception; check if any controller has ss turned on\n"));
 
             ControllerLockHolder lockController;
             for (DebuggerController* p = g_controllers; p != NULL; p = p->m_next)
             {
                 if (p->m_singleStep && (p->m_thread == pCurThread))
                 {
-                    LOG((LF_CORDB, LL_INFO1000, "DC::DNE turn off ss for controller 0x%p\n", p));
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DC::DNE turn off ss for controller 0x%p\n", p));
                     p->DisableSingleStep();
                 }
             }
@@ -4278,7 +4290,7 @@ bool DebuggerController::DispatchNativeException(EXCEPTION_RECORD *pException,
                                                        pContext,
                                                        ip,
                                                        ST_PATCH);
-            LOG((LF_CORDB, LL_EVERYTHING, "DC::DNE DispatchPatch call returned\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DC::DNE DispatchPatch call returned\n"));
 
             // If we detached, we should remove all our breakpoints. So if we try
             // to handle this breakpoint, make sure that we're attached.
@@ -4289,7 +4301,7 @@ bool DebuggerController::DispatchNativeException(EXCEPTION_RECORD *pException,
             break;
 
         case EXCEPTION_SINGLE_STEP:
-            LOG((LF_CORDB, LL_EVERYTHING, "DC::DNE SINGLE_STEP Exception\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DC::DNE SINGLE_STEP Exception\n"));
 
             result = DebuggerController::DispatchPatchOrSingleStep(pCurThread,
                                                             pContext,
@@ -4307,13 +4319,13 @@ bool DebuggerController::DispatchNativeException(EXCEPTION_RECORD *pException,
 #ifdef _DEBUG
     else
     {
-        LOG((LF_CORDB, LL_INFO1000, "DC:: DNE step-around fDispatch:0x%x!\n", fDispatch));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DC:: DNE step-around fDispatch:0x%x!\n", fDispatch));
     }
 #endif //_DEBUG
 
     fDebuggers = (fDispatch?(IsInUsedAction(result)?true:false):true);
 
-    LOG((LF_CORDB, LL_INFO10000, "DC::DNE, returning 0x%x.\n", fDebuggers));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DC::DNE, returning 0x%x.\n", fDebuggers));
 
 #ifdef _DEBUG
     if (fDebuggers && (result == DPOSS_USED_WITH_EVENT))
@@ -4353,7 +4365,7 @@ DebuggerPatchSkip::DebuggerPatchSkip(Thread *thread,
   : DebuggerController(thread, pAppDomain),
     m_address(patch->address)
 {
-    LOG((LF_CORDB, LL_INFO10000,
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
          "DPS::DPS: Patch skip 0x%p\n", patch->address));
 
     // On ARM the single-step emulation already utilizes a per-thread execution buffer similar to the scheme
@@ -4393,7 +4405,7 @@ DebuggerPatchSkip::DebuggerPatchSkip(Thread *thread,
     _ASSERTE( patch->IsActivated() );
     CORDbgSetInstruction((CORDB_ADDRESS_TYPE *)patchBypass, patch->opcode);
 
-    LOG((LF_CORDB, LL_EVERYTHING, "SetInstruction was called\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "SetInstruction was called\n"));
     //
     // Look at instruction to get some attributes
     //
@@ -4515,7 +4527,7 @@ DebuggerPatchSkip::DebuggerPatchSkip(Thread *thread,
         thread->SetThreadContext(&c);
         
 
-    LOG((LF_CORDB, LL_INFO10000, "DPS::DPS Bypass at 0x%p for opcode %p \n", patchBypass, patch->opcode));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DPS::DPS Bypass at 0x%p for opcode %p \n", patchBypass, patch->opcode));
 
     //
     // Turn on single step (if the platform supports it) so we can
@@ -4635,7 +4647,7 @@ void DebuggerPatchSkip::CopyInstructionBlock(BYTE *to, const BYTE* from)
         // that's enough to execute, otherwise we would not have been
         // able to execute the code anyway. So we just ignore the
         // exception.
-        LOG((LF_CORDB, LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
              "DPS::DPS: AV copying instruction block ignored.\n"));
     }
     PAL_ENDTRY
@@ -4652,12 +4664,12 @@ TP_RESULT DebuggerPatchSkip::TriggerPatch(DebuggerControllerPatch *patch,
                               TRIGGER_WHY tyWhy)
 {
     ARM_ONLY(_ASSERTE(!"Should not have called DebuggerPatchSkip::TriggerPatch."));
-    LOG((LF_CORDB, LL_EVERYTHING, "DPS::TP called\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DPS::TP called\n"));
 
 #if defined(_DEBUG) && !defined(_TARGET_ARM_)
     CONTEXT *context = GetManagedLiveCtx(thread);
 
-    LOG((LF_CORDB, LL_INFO1000, "DPS::TP: We've patched 0x%x (byPass:0x%x) "
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DPS::TP: We've patched 0x%x (byPass:0x%x) "
         "for a skip after an EnC update!\n", GetIP(context),
         GetBypassAddress()));
     _ASSERTE(g_patches != NULL);
@@ -4705,18 +4717,18 @@ TP_RESULT DebuggerPatchSkip::TriggerExceptionHook(Thread *thread, CONTEXT * cont
 
         if (pAppDomainCur != m_pAppDomain)
         {
-            LOG((LF_CORDB,LL_INFO10000, "DPS::TEH: Appdomain mismatch - not skiiping!\n"));
+            STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DPS::TEH: Appdomain mismatch - not skiiping!\n"));
             return TPR_IGNORE;
         }
     }
 
-    LOG((LF_CORDB,LL_INFO10000, "DPS::TEH: doing the patch-skip thing\n"));    
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DPS::TEH: doing the patch-skip thing\n"));    
 
 #if defined(_TARGET_ARM64_)
 
     if (!IsSingleStep(exception->ExceptionCode))
     {
-        LOG((LF_CORDB, LL_INFO10000, "Exception in patched Bypass instruction .\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "Exception in patched Bypass instruction .\n"));
         return (TPR_IGNORE_AND_STOP);
     }
 
@@ -4733,7 +4745,7 @@ TP_RESULT DebuggerPatchSkip::TriggerExceptionHook(Thread *thread, CONTEXT * cont
     }
 
     SetIP(context, targetIp);
-    LOG((LF_CORDB, LL_ALWAYS, "Redirecting after Patch to 0x%p\n", GetIP(context)));
+    STRESS_LOG_VA2((LF_CORDB, LL_ALWAYS, "Redirecting after Patch to 0x%p\n", GetIP(context)));
 
 #elif defined (_TARGET_ARM_)
 //Do nothing 
@@ -4747,12 +4759,12 @@ TP_RESULT DebuggerPatchSkip::TriggerExceptionHook(Thread *thread, CONTEXT * cont
 #if defined(_TARGET_X86_) || defined(_TARGET_AMD64_)
         SIZE_T *sp = (SIZE_T *) GetSP(context);
 
-        LOG((LF_CORDB, LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
              "Bypass call return address redirected from 0x%p\n", *sp));
 
         *sp -= patchBypass - (BYTE*)m_address;
 
-        LOG((LF_CORDB, LL_INFO10000, "to 0x%p\n", *sp));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "to 0x%p\n", *sp));
 #else
         PORTABILITY_ASSERT("DebuggerPatchSkip::TriggerExceptionHook -- return address fixup NYI");
 #endif
@@ -4762,7 +4774,7 @@ TP_RESULT DebuggerPatchSkip::TriggerExceptionHook(Thread *thread, CONTEXT * cont
     {
         // Fixup IP
 
-        LOG((LF_CORDB, LL_INFO10000, "Bypass instruction redirected from 0x%p\n", GetIP(context)));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "Bypass instruction redirected from 0x%p\n", GetIP(context)));
 
         if (IsSingleStep(exception->ExceptionCode))
         {
@@ -4795,7 +4807,7 @@ TP_RESULT DebuggerPatchSkip::TriggerExceptionHook(Thread *thread, CONTEXT * cont
                 if ((size_t)GetIP(context) > (size_t)pExcepDispEntryPoint &&
                     (size_t)GetIP(context) <= ((size_t)pExcepDispEntryPoint + MAX_INSTRUCTION_LENGTH * 2 + 1))
                 {
-                    LOG((LF_CORDB, LL_INFO10000,
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                          "Bypass instruction not redirected. Landed in exception dispatcher.\n"));
 
                     return (TPR_IGNORE_AND_STOP);
@@ -4809,8 +4821,8 @@ TP_RESULT DebuggerPatchSkip::TriggerExceptionHook(Thread *thread, CONTEXT * cont
                 ((size_t)GetIP(context) >  (size_t)patchBypass &&
                  (size_t)GetIP(context) <= (size_t)(patchBypass + MAX_INSTRUCTION_LENGTH + 1)))
             {
-                LOG((LF_CORDB, LL_INFO10000, "Bypass instruction redirected because still in skip area.\n"));
-                LOG((LF_CORDB, LL_INFO10000, "m_fIsCall = %d, patchBypass = 0x%x, m_address = 0x%x\n",
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "Bypass instruction redirected because still in skip area.\n"));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "m_fIsCall = %d, patchBypass = 0x%x, m_address = 0x%x\n",
                     m_instrAttrib.m_fIsCall, patchBypass, m_address));
                 SetIP(context, (PCODE)((BYTE *)GetIP(context) - (patchBypass - (BYTE *)m_address)));
             }
@@ -4825,7 +4837,7 @@ TP_RESULT DebuggerPatchSkip::TriggerExceptionHook(Thread *thread, CONTEXT * cont
                 if (g_pEEInterface->IsManagedNativeCode(dac_cast<PTR_CBYTE>(newIP)) ||
                     (g_pEEInterface->TraceStub(LPBYTE(newIP), &trace)))
                 {
-                    LOG((LF_CORDB, LL_INFO10000, "Bypass instruction redirected because we landed in managed or stub code\n"));
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "Bypass instruction redirected because we landed in managed or stub code\n"));
                     SetIP(context, newIP);
                 }
 
@@ -4834,18 +4846,18 @@ TP_RESULT DebuggerPatchSkip::TriggerExceptionHook(Thread *thread, CONTEXT * cont
                 // to claim it as ours but ignore it and continue execution.
                 else
                 {
-                    LOG((LF_CORDB, LL_INFO10000, "Bypass instruction not redirected because we're not in managed or stub code.\n"));
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "Bypass instruction not redirected because we're not in managed or stub code.\n"));
                     return (TPR_IGNORE_AND_STOP);
                 }
             }
         }
         else
         {
-            LOG((LF_CORDB, LL_INFO10000, "Bypass instruction redirected because it wasn't a single step exception.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "Bypass instruction redirected because it wasn't a single step exception.\n"));
             SetIP(context, (PCODE)((BYTE *)GetIP(context) - (patchBypass - (BYTE *)m_address)));
         }
 
-        LOG((LF_CORDB, LL_ALWAYS, "to 0x%x\n", GetIP(context)));
+        STRESS_LOG_VA2((LF_CORDB, LL_ALWAYS, "to 0x%x\n", GetIP(context)));
 
     }
 
@@ -4875,7 +4887,7 @@ TP_RESULT DebuggerPatchSkip::TriggerExceptionHook(Thread *thread, CONTEXT * cont
 
 bool DebuggerPatchSkip::TriggerSingleStep(Thread *thread, const BYTE *ip)
 {
-    LOG((LF_CORDB,LL_INFO10000, "DPS::TSS: basically a no-op\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DPS::TSS: basically a no-op\n"));
 
     if (m_pAppDomain != NULL)
     {
@@ -4883,7 +4895,7 @@ bool DebuggerPatchSkip::TriggerSingleStep(Thread *thread, const BYTE *ip)
 
         if (pAppDomainCur != m_pAppDomain)
         {
-            LOG((LF_CORDB,LL_INFO10000, "DPS::TSS: Appdomain mismatch - "
+            STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DPS::TSS: Appdomain mismatch - "
                 "not SingSteping!!\n"));
             return false;
         }
@@ -4926,7 +4938,7 @@ bool DebuggerPatchSkip::TriggerSingleStep(Thread *thread, const BYTE *ip)
         }
     }
 #endif
-    LOG((LF_CORDB,LL_INFO10000, "DPS::TSS: triggered, about to delete\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DPS::TSS: triggered, about to delete\n"));
 
     TRACE_FREE(this);
     Delete();
@@ -4975,7 +4987,7 @@ TP_RESULT DebuggerBreakpoint::TriggerPatch(DebuggerControllerPatch *patch,
                                       Thread *thread,
                                       TRIGGER_WHY tyWhy)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DB::TP\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DB::TP\n"));
 
     return TPR_TRIGGER;
 }
@@ -4994,7 +5006,7 @@ bool DebuggerBreakpoint::SendEvent(Thread *thread, bool fIpChanged)
     CONTRACTL_END;
 
 
-    LOG((LF_CORDB, LL_INFO10000, "DB::SE: in DebuggerBreakpoint's SendEvent\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DB::SE: in DebuggerBreakpoint's SendEvent\n"));
 
     CONTEXT *context = g_pEEInterface->GetThreadFilterContext(thread);
 
@@ -5061,7 +5073,7 @@ DebuggerStepper::~DebuggerStepper()
 bool DebuggerStepper::ShouldContinueStep( ControllerStackInfo *info,
                                           SIZE_T nativeOffset)
 {
-    LOG((LF_CORDB,LL_INFO10000, "DeSt::ShContSt: nativeOffset:0x%p \n", nativeOffset));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DeSt::ShContSt: nativeOffset:0x%p \n", nativeOffset));
     if (m_rgfMappingStop != STOP_ALL && (m_reason != STEP_EXIT) )
     {
 
@@ -5069,14 +5081,14 @@ bool DebuggerStepper::ShouldContinueStep( ControllerStackInfo *info,
 
         if ( ji != NULL )
         {
-            LOG((LF_CORDB,LL_INFO10000,"DeSt::ShContSt: For code 0x%p, got "
+            STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DeSt::ShContSt: For code 0x%p, got "
             "DJI 0x%p, from 0x%p to 0x%p\n",
             (const BYTE*)GetControlPC(&(info->m_activeFrame.registers)),
-            ji, ji->m_addrOfCode, ji->m_addrOfCode+ji->m_sizeOfCode));
+            ji, (void*)ji->m_addrOfCode, (void*)(ji->m_addrOfCode+ji->m_sizeOfCode)));
         }
         else
         {
-            LOG((LF_CORDB,LL_INFO10000,"DeSt::ShCoSt: For code 0x%p, didn't "
+            STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DeSt::ShCoSt: For code 0x%p, didn't "
                 "get DJI\n",(const BYTE*)GetControlPC(&(info->m_activeFrame.registers))));
 
             return false; // Haven't a clue if we should continue, so
@@ -5088,7 +5100,7 @@ bool DebuggerStepper::ShouldContinueStep( ControllerStackInfo *info,
         unsigned int interestingMappings =
             (map & ~(MAPPING_APPROXIMATE | MAPPING_EXACT));
 
-        LOG((LF_CORDB,LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,
              "DeSt::ShContSt: interestingMappings:0x%x m_rgfMappingStop:%x\n",
              interestingMappings,m_rgfMappingStop));
 
@@ -5107,10 +5119,10 @@ bool DebuggerStepper::ShouldContinueStep( ControllerStackInfo *info,
 
 bool DebuggerStepper::IsRangeAppropriate(ControllerStackInfo *info)
 {
-    LOG((LF_CORDB,LL_INFO10000, "DS::IRA: info:0x%x \n", info));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::IRA: info:0x%x \n", info));
     if (m_range == NULL)
     {
-        LOG((LF_CORDB,LL_INFO10000, "DS::IRA: m_range == NULL, returning FALSE\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::IRA: m_range == NULL, returning FALSE\n"));
         return false;
     }
 
@@ -5129,14 +5141,14 @@ bool DebuggerStepper::IsRangeAppropriate(ControllerStackInfo *info)
         realFrame = &(info->m_activeFrame);
     }
 
-    LOG((LF_CORDB,LL_INFO10000, "DS::IRA: info->m_activeFrame.fp:0x%x m_fp:0x%x\n", info->m_activeFrame.fp, m_fp));
-    LOG((LF_CORDB,LL_INFO10000, "DS::IRA: m_fdException:0x%x realFrame->md:0x%x realFrame->fp:0x%x m_fpException:0x%x\n",
-        m_fdException, realFrame->md, realFrame->fp, m_fpException));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::IRA: info->m_activeFrame.fp:0x%x m_fp:0x%x\n", *((void**)&info->m_activeFrame.fp), *((void**)& m_fp)));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::IRA: m_fdException:0x%x realFrame->md:0x%x realFrame->fp:0x%x m_fpException:0x%x\n",
+        m_fdException, realFrame->md, *((void**)& realFrame->fp), *((void**)&m_fpException)));
     if ( (info->m_activeFrame.fp == m_fp) ||
          ( (m_fdException != NULL) && (realFrame->md == m_fdException) && 
            IsEqualOrCloserToRoot(realFrame->fp, m_fpException) ) )
     {
-        LOG((LF_CORDB,LL_INFO10000, "DS::IRA: returning TRUE\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::IRA: returning TRUE\n"));
         return true;
     }
 
@@ -5157,13 +5169,13 @@ bool DebuggerStepper::IsRangeAppropriate(ControllerStackInfo *info)
         // Scenario 1a
         if (m_fp == info->m_returnFrame.fp)
         {
-            LOG((LF_CORDB,LL_INFO10000, "DS::IRA: returning TRUE\n"));
+            STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::IRA: returning TRUE\n"));
             return true;
         }
         // Scenario 1b & 2b have the same condition
         else if (fValidParentMethodFP && (m_fpParentMethod == info->m_returnFrame.fp))
         {
-            LOG((LF_CORDB,LL_INFO10000, "DS::IRA: returning TRUE\n"));
+            STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::IRA: returning TRUE\n"));
             return true;
         }
     }
@@ -5172,13 +5184,13 @@ bool DebuggerStepper::IsRangeAppropriate(ControllerStackInfo *info)
         // Scenario 2a
         if (fValidParentMethodFP && (m_fpParentMethod == info->m_activeFrame.fp))
         {
-            LOG((LF_CORDB,LL_INFO10000, "DS::IRA: returning TRUE\n"));
+            STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::IRA: returning TRUE\n"));
             return true;
         }
     }
 #endif // WIN64EXCEPTIONS
 
-    LOG((LF_CORDB,LL_INFO10000, "DS::IRA: returning FALSE\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::IRA: returning FALSE\n"));
     return false;
 }
 
@@ -5196,17 +5208,17 @@ bool DebuggerStepper::IsRangeAppropriate(ControllerStackInfo *info)
 bool DebuggerStepper::IsInRange(SIZE_T ip, COR_DEBUG_STEP_RANGE *range, SIZE_T rangeCount,
                                 ControllerStackInfo *pInfo)
 {
-    LOG((LF_CORDB,LL_INFO10000,"DS::IIR: off=0x%x\n", ip));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::IIR: off=0x%x\n", ip));
 
     if (range == NULL)
     {
-        LOG((LF_CORDB,LL_INFO10000,"DS::IIR: range == NULL -> not in range\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::IIR: range == NULL -> not in range\n"));
         return false;
     }
 
     if (pInfo && !IsRangeAppropriate(pInfo))
     {
-        LOG((LF_CORDB,LL_INFO10000,"DS::IIR: no pInfo or range not appropriate -> not in range\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::IIR: no pInfo or range not appropriate -> not in range\n"));
         return false;
     }
 
@@ -5216,12 +5228,12 @@ bool DebuggerStepper::IsInRange(SIZE_T ip, COR_DEBUG_STEP_RANGE *range, SIZE_T r
     while (r < rEnd)
     {
         SIZE_T endOffset = r->endOffset ? r->endOffset : ~0;
-        LOG((LF_CORDB,LL_INFO100000,"DS::IIR: so=0x%x, eo=0x%x\n",
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO100000,"DS::IIR: so=0x%x, eo=0x%x\n",
              r->startOffset, endOffset));
 
         if (ip >= r->startOffset && ip < endOffset)
         {
-            LOG((LF_CORDB,LL_INFO1000,"DS::IIR:this:0x%x Found native offset "
+            STRESS_LOG_VA2((LF_CORDB,LL_INFO1000,"DS::IIR:this:0x%x Found native offset "
                 "0x%x to be in the range"
                 "[0x%x, 0x%x), index 0x%x\n\n", this, ip, r->startOffset,
                 endOffset, ((r-range)/sizeof(COR_DEBUG_STEP_RANGE *)) ));
@@ -5231,7 +5243,7 @@ bool DebuggerStepper::IsInRange(SIZE_T ip, COR_DEBUG_STEP_RANGE *range, SIZE_T r
         r++;
     }
 
-    LOG((LF_CORDB,LL_INFO10000,"DS::IIR: not in range\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::IIR: not in range\n"));
     return false;
 }
 
@@ -5243,15 +5255,15 @@ bool DebuggerStepper::IsInRange(SIZE_T ip, COR_DEBUG_STEP_RANGE *range, SIZE_T r
 // set a breakpoint after the top-most interceptor in the stack.
 bool DebuggerStepper::DetectHandleInterceptors(ControllerStackInfo *info)
 {
-    LOG((LF_CORDB,LL_INFO10000,"DS::DHI: Start DetectHandleInterceptors\n"));
-    LOG((LF_CORDB,LL_INFO10000,"DS::DHI: active frame=0x%08x, has return frame=%d, return frame=0x%08x m_reason:%d\n",
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::DHI: Start DetectHandleInterceptors\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::DHI: active frame=0x%08x, has return frame=%d, return frame=0x%08x m_reason:%d\n",
          info->m_activeFrame.frame, info->HasReturnFrame(), info->m_returnFrame.frame, m_reason));
 
     // If this is a normal step, then we want to continue stepping, even if we
     // are in an interceptor.
     if (m_reason == STEP_NORMAL || m_reason == STEP_RETURN || m_reason == STEP_EXCEPTION_HANDLER)
     {
-        LOG((LF_CORDB,LL_INFO1000,"DS::DHI: Returning false while stepping within function, finally!\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO1000,"DS::DHI: Returning false while stepping within function, finally!\n"));
         return false;
     }
 
@@ -5265,14 +5277,14 @@ bool DebuggerStepper::DetectHandleInterceptors(ControllerStackInfo *info)
         {
             if (!((CorDebugIntercept)info->m_activeFrame.frame->GetInterception() & Frame::Interception(m_rgfInterceptStop)))
             {
-                LOG((LF_CORDB,LL_INFO10000,"DS::DHI: Stepping out b/c of excluded frame type:0x%x\n",
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::DHI: Stepping out b/c of excluded frame type:0x%x\n",
                      info->m_returnFrame. frame->GetInterception()));
 
                 fAttemptStepOut = true;
             }
             else
             {
-                LOG((LF_CORDB,LL_INFO10000,"DS::DHI: 0x%x set to STEP_INTERCEPT\n", this));
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::DHI: 0x%x set to STEP_INTERCEPT\n", this));
 
                 m_reason = STEP_INTERCEPT; //remember why we've stopped
             }
@@ -5292,13 +5304,13 @@ bool DebuggerStepper::DetectHandleInterceptors(ControllerStackInfo *info)
 
                 if (!(Frame::INTERCEPTION_EXCEPTION & Frame::Interception(m_rgfInterceptStop)))
                 {
-                    LOG((LF_CORDB,LL_INFO10000,"DS::DHI: Stepping out b/c of excluded INTERCEPTION_EXCEPTION\n"));
+                    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::DHI: Stepping out b/c of excluded INTERCEPTION_EXCEPTION\n"));
                     fAttemptStepOut = true;
                 }
             }
             else if (!(info->m_returnFrame.frame->GetInterception() & Frame::Interception(m_rgfInterceptStop)))
             {
-                LOG((LF_CORDB,LL_INFO10000,"DS::DHI: Stepping out b/c of excluded return frame type:0x%x\n",
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::DHI: Stepping out b/c of excluded return frame type:0x%x\n",
                      info->m_returnFrame.frame->GetInterception()));
 
                 fAttemptStepOut = true;
@@ -5306,7 +5318,7 @@ bool DebuggerStepper::DetectHandleInterceptors(ControllerStackInfo *info)
 
             if (!fAttemptStepOut)
             {
-                LOG((LF_CORDB,LL_INFO10000,"DS::DHI 0x%x set to STEP_INTERCEPT\n", this));
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::DHI 0x%x set to STEP_INTERCEPT\n", this));
 
                 m_reason = STEP_INTERCEPT; //remember why we've stopped
             }
@@ -5315,14 +5327,14 @@ bool DebuggerStepper::DetectHandleInterceptors(ControllerStackInfo *info)
         {
             if(!(info->m_specialChainReason & CorDebugChainReason(m_rgfInterceptStop)) )
             {
-                LOG((LF_CORDB,LL_INFO10000, "DS::DHI: (special) Stepping out b/c of excluded return frame type:0x%x\n",
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::DHI: (special) Stepping out b/c of excluded return frame type:0x%x\n",
                      info->m_specialChainReason));
 
                 fAttemptStepOut = true;
             }
             else
             {
-                LOG((LF_CORDB,LL_INFO10000,"DS::DHI 0x%x set to STEP_INTERCEPT\n", this));
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::DHI 0x%x set to STEP_INTERCEPT\n", this));
 
                 m_reason = STEP_INTERCEPT; //remember why we've stopped
             }
@@ -5339,14 +5351,14 @@ bool DebuggerStepper::DetectHandleInterceptors(ControllerStackInfo *info)
                     // We are in a class constructor.  Check whether we want to stop in it.
                     if (!(CHAIN_CLASS_INIT & CorDebugChainReason(m_rgfInterceptStop)))
                     {
-                        LOG((LF_CORDB, LL_INFO10000, "DS::DHI: Stepping out b/c of excluded cctor:0x%x\n",
+                        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::DHI: Stepping out b/c of excluded cctor:0x%x\n",
                              CHAIN_CLASS_INIT));
 
                         fAttemptStepOut = true;
                     }
                     else
                     {
-                        LOG((LF_CORDB, LL_INFO10000,"DS::DHI 0x%x set to STEP_INTERCEPT\n", this));
+                        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,"DS::DHI 0x%x set to STEP_INTERCEPT\n", this));
 
                         m_reason = STEP_INTERCEPT; //remember why we've stopped
                     }
@@ -5357,7 +5369,7 @@ bool DebuggerStepper::DetectHandleInterceptors(ControllerStackInfo *info)
 
     if (fAttemptStepOut)
     {
-        LOG((LF_CORDB,LL_INFO1000,"DS::DHI: Doing TSO!\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO1000,"DS::DHI: Doing TSO!\n"));
 
         // TrapStepOut could alter the step reason if we're stepping out of an inteceptor and it looks like we're
         // running off the top of the program. So hold onto it here, and if our step reason becomes STEP_EXIT, then
@@ -5378,7 +5390,7 @@ bool DebuggerStepper::DetectHandleInterceptors(ControllerStackInfo *info)
 
     // We're not in a special area of code, so we don't want to continue unless some other part of the code decides that
     // we should.
-    LOG((LF_CORDB,LL_INFO1000,"DS::DHI: Returning false, finally!\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000,"DS::DHI: Returning false, finally!\n"));
 
     return false;
 }
@@ -5458,7 +5470,7 @@ BOOL DebuggerStepper::DetectHandleLCGMethods(const PCODE ip, MethodDesc * pMD, C
 // On enter, we check for freezing the stepper.
 void DebuggerStepper::TriggerFuncEvalEnter(Thread * thread)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DS::TFEEnter, this=0x%p, old nest=%d\n", this, m_cFuncEvalNesting));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TFEEnter, this=0x%p, old nest=%d\n", this, m_cFuncEvalNesting));
 
     // Since this is always called on the hijacking thread, we should be thread-safe
     _ASSERTE(thread == this->GetThread());
@@ -5471,7 +5483,7 @@ void DebuggerStepper::TriggerFuncEvalEnter(Thread * thread)
     if (m_cFuncEvalNesting == 1)
     {
         // We're entering our 1st funceval, so freeze us.
-        LOG((LF_CORDB, LL_INFO100000, "DS::TFEEnter - freezing stepper\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DS::TFEEnter - freezing stepper\n"));
 
         // Freeze the stepper by disabling all triggers
         m_bvFrozenTriggers = 0;
@@ -5496,7 +5508,7 @@ void DebuggerStepper::TriggerFuncEvalEnter(Thread * thread)
     }
     else
     {
-        LOG((LF_CORDB, LL_INFO100000, "DS::TFEEnter - new nest=%d\n", m_cFuncEvalNesting));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DS::TFEEnter - new nest=%d\n", m_cFuncEvalNesting));
     }
 }
 
@@ -5505,7 +5517,7 @@ void DebuggerStepper::TriggerFuncEvalEnter(Thread * thread)
 // or if we previously entered this func-eval and should thaw it now.
 void DebuggerStepper::TriggerFuncEvalExit(Thread * thread)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DS::TFEExit, this=0x%p, old nest=%d\n", this, m_cFuncEvalNesting));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TFEExit, this=0x%p, old nest=%d\n", this, m_cFuncEvalNesting));
 
     // Since this is always called on the hijacking thread, we should be thread-safe
     _ASSERTE(thread == this->GetThread());
@@ -5517,7 +5529,7 @@ void DebuggerStepper::TriggerFuncEvalExit(Thread * thread)
 
     if (m_cFuncEvalNesting == -1)
     {
-        LOG((LF_CORDB, LL_INFO100000, "DS::TFEExit - disabling stepper\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DS::TFEExit - disabling stepper\n"));
 
         // we're exiting the func-eval session we were created in. So we just completely
         // disable ourselves so that we don't fire anything anymore.
@@ -5534,7 +5546,7 @@ void DebuggerStepper::TriggerFuncEvalExit(Thread * thread)
     {
         // We're back to our starting Func-eval session, we should have been frozen,
         // so now we thaw.
-        LOG((LF_CORDB, LL_INFO100000, "DS::TFEExit - thawing stepper\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DS::TFEExit - thawing stepper\n"));
 
         // Thaw the stepper (reenable triggers)
         if ((m_bvFrozenTriggers & kMethodEnter) != 0)
@@ -5546,7 +5558,7 @@ void DebuggerStepper::TriggerFuncEvalExit(Thread * thread)
     }
     else
     {
-        LOG((LF_CORDB, LL_INFO100000, "DS::TFEExit - new nest=%d\n", m_cFuncEvalNesting));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DS::TFEExit - new nest=%d\n", m_cFuncEvalNesting));
     }
 }
 
@@ -5564,7 +5576,7 @@ bool DebuggerStepper::TrapStepInto(ControllerStackInfo *info,
     if (IsCloserToRoot(info->m_activeFrame.fp, m_fpStepInto))
         m_fpStepInto = info->m_activeFrame.fp;
 
-    LOG((LF_CORDB, LL_INFO1000, "Ds::TSI this:0x%x m_fpStepInto:0x%x\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "Ds::TSI this:0x%x m_fpStepInto:0x%x\n",
         this, m_fpStepInto.GetSPValue()));
 
     TraceDestination trace;
@@ -5651,13 +5663,13 @@ bool DebuggerStepper::TrapStepInHelper(
             if (code.AddressToOffset((const BYTE *)td.GetAddress()) == 0)
             {
 
-                LOG((LF_CORDB,LL_INFO1000,"\tDS::TS 0x%x m_reason = STEP_CALL"
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO1000,"\tDS::TS 0x%x m_reason = STEP_CALL"
                      "@ip0x%x\n", this, (BYTE*)GetControlPC(&(pInfo->m_activeFrame.registers))));
                   m_reason = STEP_CALL;
             }
             else
             {
-                LOG((LF_CORDB, LL_INFO1000, "Didn't step: md:0x%x"
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "Didn't step: md:0x%x"
                      "td.type:%s td.address:0x%p,  hot code address:0x%p\n",
                      md, GetTType(td.GetTraceType()), td.GetAddress(),
                     code.getAddrOfHotCode()));
@@ -5665,7 +5677,7 @@ bool DebuggerStepper::TrapStepInHelper(
         }
         else
         {
-            LOG((LF_CORDB,LL_INFO10000,"DS::TS else 0x%x m_reason = STEP_CALL\n",
+            STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::TS else 0x%x m_reason = STEP_CALL\n",
                  this));
             m_reason = STEP_CALL;
         }
@@ -5717,14 +5729,14 @@ FORCEINLINE bool IsTailCall(const BYTE * pTargetIP)
 // on the method that called the current frame's method.
 bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
 {
-    LOG((LF_CORDB,LL_INFO10000,"DS::TS: this:0x%x\n", this));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::TS: this:0x%x\n", this));
     if (!info->m_activeFrame.managed)
     {
         //
         // We're not in managed code.  Patch up all paths back in.
         //
 
-        LOG((LF_CORDB,LL_INFO10000, "DS::TS: not in managed code\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::TS: not in managed code\n"));
 
         if (in)
         {
@@ -5742,7 +5754,7 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
         // or if we can't, patch return from the frame
         //
 
-        LOG((LF_CORDB,LL_INFO10000, "DS::TS: in a weird frame\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::TS: in a weird frame\n"));
 
         if (in)
         {
@@ -5779,7 +5791,7 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
     }
 
 #ifdef _TARGET_X86_
-    LOG((LF_CORDB,LL_INFO1000, "GetJitInfo for pc = 0x%x (addr of "
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "GetJitInfo for pc = 0x%x (addr of "
         "that value:0x%x)\n", (const BYTE*)(GetControlPC(&info->m_activeFrame.registers)),
         info->m_activeFrame.registers.PCTAddr));
 #endif
@@ -5790,14 +5802,14 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
     DebuggerJitInfo *ji = info->m_activeFrame.GetJitInfoFromFrame();
     if( ji != NULL )
     {
-        LOG((LF_CORDB,LL_INFO10000,"DS::TS: For code 0x%p, got DJI 0x%p, "
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::TS: For code 0x%p, got DJI 0x%p, "
             "from 0x%p to 0x%p\n",
             (const BYTE*)(GetControlPC(&info->m_activeFrame.registers)),
-            ji, ji->m_addrOfCode, ji->m_addrOfCode+ji->m_sizeOfCode));
+            ji, (void*)ji->m_addrOfCode, (void*)(ji->m_addrOfCode+ji->m_sizeOfCode)));
     }
     else
     {
-        LOG((LF_CORDB,LL_INFO10000,"DS::TS: For code 0x%p, "
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::TS: For code 0x%p, "
             "didn't get a DJI \n",
             (const BYTE*)(GetControlPC(&info->m_activeFrame.registers))));
     }
@@ -5808,7 +5820,7 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
 
     NativeWalker walker;
 
-    LOG((LF_CORDB,LL_INFO1000, "DS::TS: &info->m_activeFrame.registers 0x%p\n", &info->m_activeFrame.registers));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DS::TS: &info->m_activeFrame.registers 0x%p\n", &info->m_activeFrame.registers));
 
     // !!! Eventually when using the fjit, we'll want
     // to walk the IL to get the next location, & then map
@@ -5836,7 +5848,7 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
     // assume our context is bogus.
     if (fIsActivFrameLive)
     {
-        LOG((LF_CORDB,LL_INFO10000, "DC::TS: immediate?\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DC::TS: immediate?\n"));
 
         // Note that by definition our walker must always be able to step
         // through a single instruction, so any return
@@ -5851,7 +5863,7 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
             {
             case WALK_RETURN:
                 {
-                    LOG((LF_CORDB,LL_INFO10000, "DC::TS:Imm:WALK_RETURN\n"));
+                    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DC::TS:Imm:WALK_RETURN\n"));
 
                     // Normally a 'ret' opcode means we're at the end of a function and doing a step-out.
                     // But the jit is free to use a 'ret' opcode to implement various goofy constructs like
@@ -5871,7 +5883,7 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
                 }
 
             case WALK_BRANCH:
-                LOG((LF_CORDB,LL_INFO10000, "DC::TS:Imm:WALK_BRANCH\n"));
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DC::TS:Imm:WALK_BRANCH\n"));
                 // A branch can be handled just like a call. If the branch is within the current method, then we just
                 // down to WALK_UNKNOWN, otherwise we handle it just like a call.  Note: we need to force in=true
                 // because for a jmp, in or over is the same thing, we're still going there, and the in==true case is
@@ -5881,13 +5893,13 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
                 // fall through...
 
             case WALK_CALL:
-                LOG((LF_CORDB,LL_INFO10000, "DC::TS:Imm:WALK_CALL ip=%p nextip=%p\n", walker.GetIP(), walker.GetNextIP()));
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DC::TS:Imm:WALK_CALL ip=%p nextip=%p\n", walker.GetIP(), walker.GetNextIP()));
 
                 // If we're doing some sort of intra-method jump (usually, to get EIP in a clever way, via the CALL
                 // instruction), then put the bp where we're going, NOT at the instruction following the call
                 if (IsAddrWithinFrame(ji, info->m_activeFrame.md, walker.GetIP(), walker.GetNextIP()))
                 {
-                    LOG((LF_CORDB, LL_INFO1000, "Walk call within method!" ));
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "Walk call within method!" ));
                     goto LWALK_UNKNOWN;
                 }
 
@@ -5942,7 +5954,7 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
                 }
                 if (walker.GetSkipIP() == NULL)
                 {
-                    LOG((LF_CORDB,LL_INFO10000,"DS::TS 0x%x m_reason = STEP_CALL (skip)\n",
+                    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::TS 0x%x m_reason = STEP_CALL (skip)\n",
                          this));
                     m_reason = STEP_CALL;
 
@@ -5950,13 +5962,13 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
                 }
 
 
-                LOG((LF_CORDB,LL_INFO100000, "DC::TS:Imm:WALK_CALL Skip instruction\n"));
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO100000, "DC::TS:Imm:WALK_CALL Skip instruction\n"));
                 walker.Skip();
                 break;
 
             case WALK_UNKNOWN:
     LWALK_UNKNOWN:
-                LOG((LF_CORDB,LL_INFO10000,"DS::TS:WALK_UNKNOWN - curIP:0x%x "
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::TS:WALK_UNKNOWN - curIP:0x%x "
                     "nextIP:0x%x skipIP:0x%x 1st byte of opcode:0x%x\n", (BYTE*)GetControlPC(&(info->m_activeFrame.
                     registers)), walker.GetNextIP(),walker.GetSkipIP(),
                     *(BYTE*)GetControlPC(&(info->m_activeFrame.registers))));
@@ -6006,7 +6018,7 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
 
         SIZE_T offset = CodeRegionInfo::GetCodeRegionInfo(ji, info->m_activeFrame.md).AddressToOffset(ip);
 
-        LOG((LF_CORDB, LL_INFO1000, "Walking to ip 0x%p (natOff:0x%x)\n",ip,offset));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "Walking to ip 0x%p (natOff:0x%x)\n",ip,offset));
 
         if (!IsInRange(offset, range, rangeCount)
             && !ShouldContinueStep( info, offset ))
@@ -6023,7 +6035,7 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
         {
         case WALK_RETURN:
 
-            LOG((LF_CORDB, LL_INFO10000, "DS::TS: WALK_RETURN Adding Patch.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TS: WALK_RETURN Adding Patch.\n"));
 
             // In the loop above, if we're at the return address, we'll check & see
             // if we're returning to elsewhere within the same method, and if so,
@@ -6039,13 +6051,13 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
 
         case WALK_CALL:
 
-            LOG((LF_CORDB, LL_INFO10000, "DS::TS: WALK_CALL.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TS: WALK_CALL.\n"));
 
             // If we're doing some sort of intra-method jump (usually, to get EIP in a clever way, via the CALL
             // instruction), then put the bp where we're going, NOT at the instruction following the call
             if (IsAddrWithinFrame(ji, info->m_activeFrame.md, walker.GetIP(), walker.GetNextIP()))
             {
-                LOG((LF_CORDB, LL_INFO10000, "DS::TS: WALK_CALL IsAddrWithinFrame, Adding Patch.\n"));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TS: WALK_CALL IsAddrWithinFrame, Adding Patch.\n"));
 
                 // How else to detect this?
                 AddBindAndActivateNativeManagedPatch(info->m_activeFrame.md,
@@ -6074,17 +6086,17 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
 #endif
             if (in || fCallingIntoFunclet)
             {
-                LOG((LF_CORDB, LL_INFO10000, "DS::TS: WALK_CALL step in is true\n"));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TS: WALK_CALL step in is true\n"));
                 if (walker.GetNextIP() == NULL)
                 {
-                    LOG((LF_CORDB, LL_INFO10000, "DS::TS: WALK_CALL NextIP == NULL\n"));
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TS: WALK_CALL NextIP == NULL\n"));
                     AddBindAndActivateNativeManagedPatch(info->m_activeFrame.md,
                              ji,
                              offset,
                              info->m_returnFrame.fp,
                              NULL);
 
-                    LOG((LF_CORDB,LL_INFO10000,"DS0x%x m_reason=STEP_CALL 2\n",
+                    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS0x%x m_reason=STEP_CALL 2\n",
                          this));
                     m_reason = STEP_CALL;
 
@@ -6098,7 +6110,7 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
 
             }
 
-            LOG((LF_CORDB, LL_INFO10000, "DS::TS: WALK_CALL Calling GetSkipIP\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TS: WALK_CALL Calling GetSkipIP\n"));
             if (walker.GetSkipIP() == NULL)
             {
                 AddBindAndActivateNativeManagedPatch(info->m_activeFrame.md,
@@ -6107,14 +6119,14 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
                          info->m_returnFrame.fp,
                          NULL);
 
-                LOG((LF_CORDB,LL_INFO10000,"DS 0x%x m_reason=STEP_CALL4\n",this));
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS 0x%x m_reason=STEP_CALL4\n",this));
                 m_reason = STEP_CALL;
 
                 return true;
             }
 
             walker.Skip();
-            LOG((LF_CORDB, LL_INFO10000, "DS::TS: skipping over call.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TS: skipping over call.\n"));
             break;
 
         default:
@@ -6131,7 +6143,7 @@ bool DebuggerStepper::TrapStep(ControllerStackInfo *info, bool in)
             break;
         }
     }
-    LOG((LF_CORDB,LL_INFO1000,"Ending TrapStep\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000,"Ending TrapStep\n"));
 }
 
 bool DebuggerStepper::IsAddrWithinFrame(DebuggerJitInfo *dji,
@@ -6179,7 +6191,7 @@ bool DebuggerStepper::IsAddrWithinMethodIncludingFunclet(DebuggerJitInfo *dji,
 
 void DebuggerStepper::TrapStepNext(ControllerStackInfo *info)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DS::TrapStepNext, this=%p\n", this));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TrapStepNext, this=%p\n", this));
     // StepNext for a Normal stepper is just a step-out
     TrapStepOut(info);
 
@@ -6201,7 +6213,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
     ControllerStackInfo returnInfo;
     DebuggerJitInfo *dji;
 
-    LOG((LF_CORDB, LL_INFO10000, "DS::TSO this:0x%p\n", this));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TSO this:0x%p\n", this));
 
     bool fReturningFromFinallyFunclet = false;
 
@@ -6262,7 +6274,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
                     info->m_returnFrame.fp,
                     NULL);
 
-                LOG((LF_CORDB, LL_INFO10000,
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                      "DS::TSO:normally managed code AddPatch"
                      " in %s::%s, offset 0x%x, m_reason=%d\n",
                      info->m_returnFrame.md->m_pszDebugClassName,
@@ -6271,7 +6283,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
 
                 // Do not set m_reason to STEP_RETURN here.  Logically, the funclet and the parent method are the
                 // same method, so we should not "return" to the parent method.
-                LOG((LF_CORDB, LL_INFO10000,"DS::TSO: done\n"));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,"DS::TSO: done\n"));
 
                 return;
             }
@@ -6322,7 +6334,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
 #ifdef FEATURE_MULTICASTSTUB_AS_IL
         if (info->m_activeFrame.md != nullptr && info->m_activeFrame.md->IsILStub() && info->m_activeFrame.md->AsDynamicMethodDesc()->IsMulticastStub())
         {
-            LOG((LF_CORDB, LL_INFO10000,
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                  "DS::TSO: multicast frame.\n"));
             
             // User break should always be called from managed code, so it should never actually hit this codepath.
@@ -6331,7 +6343,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
             // JMC steppers shouldn't be patching stubs.
             if (DEBUGGER_CONTROLLER_JMC_STEPPER == this->GetDCType())
             {
-                LOG((LF_CORDB, LL_INFO10000, "DS::TSO: JMC stepper skipping frame.\n"));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TSO: JMC stepper skipping frame.\n"));
                 continue;
             }
             
@@ -6350,7 +6362,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
 #endif // FEATURE_MULTICASTSTUB_AS_IL
         if (info->m_activeFrame.managed)
         {
-            LOG((LF_CORDB, LL_INFO10000,
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                  "DS::TSO: return frame is managed.\n"));
 
             if (info->m_activeFrame.frame == NULL)
@@ -6376,7 +6388,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
                     info->m_returnFrame.fp,
                     NULL);
 
-                LOG((LF_CORDB, LL_INFO10000,
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                      "DS::TSO:normally managed code AddPatch"
                      " in %s::%s, offset 0x%x, m_reason=%d\n",
                      info->m_activeFrame.md->m_pszDebugClassName,
@@ -6399,7 +6411,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
                 // JMC-steppers do a true-step out. So for JMC-steppers, don't enable trace-call.
                 if (DEBUGGER_CONTROLLER_JMC_STEPPER == this->GetDCType())
                 {
-                    LOG((LF_CORDB, LL_EVERYTHING, "DS::TSO: JMC stepper skipping exit-frame case.\n"));
+                    STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DS::TSO: JMC stepper skipping exit-frame case.\n"));
                     break;
                 }
 
@@ -6412,7 +6424,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
                 // step-next; not a true-step out.
                 EnableTraceCall(info->m_activeFrame.fp);
 
-                LOG((LF_CORDB, LL_INFO1000, "DS::TSO: Off top of frame!\n"));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DS::TSO: Off top of frame!\n"));
 
                 m_reason = STEP_EXIT; //we're on the way out..
 
@@ -6427,7 +6439,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
                 // except that we don't enable trace call since we
                 // know exactly where were going.
 
-                LOG((LF_CORDB, LL_INFO1000,
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO1000,
                      "DS::TSO: Off top of func eval!\n"));
 
                 m_reason = STEP_EXIT;
@@ -6444,13 +6456,13 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
                 // indicates that the frame is just a cache frame:
                 // Skip it and keep on going
 
-                LOG((LF_CORDB, LL_INFO10000,
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                      "DS::TSO: returning to a non-intercepting frame. Keep unwinding\n"));
                 continue;
             }
             else
             {
-                LOG((LF_CORDB, LL_INFO10000,
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                      "DS::TSO: returning to a stub frame.\n"));
 
                 // User break should always be called from managed code, so it should never actually hit this codepath.
@@ -6459,7 +6471,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
                 // JMC steppers shouldn't be patching stubs.
                 if (DEBUGGER_CONTROLLER_JMC_STEPPER == this->GetDCType())
                 {
-                    LOG((LF_CORDB, LL_INFO10000, "DS::TSO: JMC stepper skipping frame.\n"));
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TSO: JMC stepper skipping frame.\n"));
                     continue;
                 }
 
@@ -6505,7 +6517,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
         }
         else
         {
-            LOG((LF_CORDB, LL_INFO10000,
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                  "DS::TSO: return frame is not managed.\n"));
 
             // Only step out to unmanaged code if we're actually
@@ -6513,7 +6525,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
             // to get us past the unmanaged frames.
             if (m_rgfMappingStop & STOP_UNMANAGED)
             {
-                LOG((LF_CORDB, LL_INFO10000,
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                      "DS::TSO: return to unmanaged code "
                      "m_reason=STEP_RETURN\n"));
 
@@ -6525,7 +6537,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
                 }
 
                 // We're stepping out into unmanaged code
-                LOG((LF_CORDB, LL_INFO10000,
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                  "DS::TSO: Setting unmanaged trace patch at 0x%x(%x)\n",
                      GetControlPC(&(info->m_activeFrame.registers)),
                      info->m_returnFrame.fp.GetSPValue()));
@@ -6544,7 +6556,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
 
     // <REVISIT_TODO>If we get here, we may be stepping out of the last frame.  Our thread
     // exit logic should catch this case. (@todo)</REVISIT_TODO>
-    LOG((LF_CORDB, LL_INFO10000,"DS::TSO: done\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,"DS::TSO: done\n"));
 }
 
 
@@ -6565,7 +6577,7 @@ void DebuggerStepper::TrapStepOut(ControllerStackInfo *info, bool fForceTraditio
 // EnableUnwind( m_fp );
 void DebuggerStepper::StepOut(FramePointer fp, StackTraceTicket ticket)
 {
-    LOG((LF_CORDB, LL_INFO10000, "Attempting to step out, fp:0x%x this:0x%x"
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "Attempting to step out, fp:0x%x this:0x%x"
         "\n", fp.GetSPValue(), this ));
 
     Thread *thread = GetThread();
@@ -6670,10 +6682,10 @@ bool DebuggerStepper::SetRangesFromIL(DebuggerJitInfo *dji, COR_DEBUG_STEP_RANGE
 
     if (dji != NULL)
     {
-        LOG((LF_CORDB,LL_INFO10000,"DeSt::St: For code md=0x%x, got DJI 0x%x, from 0x%x to 0x%x\n",
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DeSt::St: For code md=0x%x, got DJI 0x%x, from 0x%x to 0x%x\n",
             fd,
-            dji, dji->m_addrOfCode, (ULONG)dji->m_addrOfCode
-            + (ULONG)dji->m_sizeOfCode));
+            dji, (void*)dji->m_addrOfCode, (void*)((ULONG)dji->m_addrOfCode
+            + (ULONG)dji->m_sizeOfCode)));
 
         //
         // Map ranges to native offsets for jitted code
@@ -6699,7 +6711,7 @@ bool DebuggerStepper::SetRangesFromIL(DebuggerJitInfo *dji, COR_DEBUG_STEP_RANGE
             {
                 // {0...-1} means use the entire method as the range
                 // Code dup'd from below case.
-                LOG((LF_CORDB, LL_INFO10000, "DS:Step: Have DJI, special (0,-1) entry\n"));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS:Step: Have DJI, special (0,-1) entry\n"));
                 rTo->startOffset = 0;
                 rTo->endOffset   = (ULONG32)g_pEEInterface->GetFunctionSize(fd);
             }
@@ -6763,7 +6775,7 @@ bool DebuggerStepper::SetRangesFromIL(DebuggerJitInfo *dji, COR_DEBUG_STEP_RANGE
                         }
                     }
 
-                    LOG((LF_CORDB, LL_INFO10000, "DS:Step: nat off:0x%x to 0x%x\n", rTo->startOffset, rTo->endOffset));
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS:Step: nat off:0x%x to 0x%x\n", rTo->startOffset, rTo->endOffset));
                 }
             }
         }
@@ -6785,7 +6797,7 @@ bool DebuggerStepper::SetRangesFromIL(DebuggerJitInfo *dji, COR_DEBUG_STEP_RANGE
         {
             if (r->startOffset == 0 && r->endOffset == (ULONG) ~0)
             {
-                LOG((LF_CORDB, LL_INFO10000, "DS:Step:No DJI, (0,-1) special entry\n"));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS:Step:No DJI, (0,-1) special entry\n"));
                 // Code dup'd from above case.
                 // {0...-1} means use the entire method as the range
                 rTo->startOffset = 0;
@@ -6793,7 +6805,7 @@ bool DebuggerStepper::SetRangesFromIL(DebuggerJitInfo *dji, COR_DEBUG_STEP_RANGE
             }
             else
             {
-                LOG((LF_CORDB, LL_INFO10000, "DS:Step:No DJI, regular entry\n"));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS:Step:No DJI, regular entry\n"));
                 // We can't just leave ths IL entry - we have to
                 // get rid of it.
                 // This will just be ignored
@@ -6826,12 +6838,16 @@ bool DebuggerStepper::Step(FramePointer fp, bool in,
                            COR_DEBUG_STEP_RANGE *ranges, SIZE_T rangeCount,
                            bool rangeIL)
 {
-    LOG((LF_CORDB, LL_INFO1000, "DeSt:Step this:0x%x  ", this));
-    if (rangeCount>0)
-        LOG((LF_CORDB,LL_INFO10000," start,end[0]:(0x%x,0x%x)\n",
-             ranges[0].startOffset, ranges[0].endOffset));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DeSt:Step this:0x%x  ", this));
+    if (rangeCount > 0)
+    {
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, " start,end[0]:(0x%x,0x%x)\n",
+            ranges[0].startOffset, ranges[0].endOffset));
+    }
     else
-        LOG((LF_CORDB,LL_INFO10000," single step\n"));
+    {
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, " single step\n"));
+    }
 
     Thread *thread = GetThread();
     CONTEXT *context = g_pEEInterface->GetThreadFilterContext(thread);
@@ -6849,7 +6865,7 @@ bool DebuggerStepper::Step(FramePointer fp, bool in,
             fIsILStub = pMD->IsILStub();
         }
     }
-    LOG((LF_CORDB, LL_INFO10000, "DS::S - fIsILStub = %d\n", fIsILStub));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::S - fIsILStub = %d\n", fIsILStub));
 
     ControllerStackInfo info;
 
@@ -6935,12 +6951,12 @@ bool DebuggerStepper::Step(FramePointer fp, bool in,
     }
     m_eMode = m_stepIn ? cStepIn : cStepOver;
 
-    LOG((LF_CORDB,LL_INFO10000,"DS 0x%x STep: STEP_NORMAL\n",this));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS 0x%x STep: STEP_NORMAL\n",this));
     m_reason = STEP_NORMAL; //assume it'll be a normal step & set it to
     //something else if we walk over it
     if (fIsILStub)
     {
-        LOG((LF_CORDB, LL_INFO10000, "DS:Step: stepping in an IL stub\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS:Step: stepping in an IL stub\n"));
 
         // Enable the right triggers if the user wants to step in.
         if (in)
@@ -6964,12 +6980,12 @@ bool DebuggerStepper::Step(FramePointer fp, bool in,
     }
     else if (!TrapStep(&info, in))
     {
-        LOG((LF_CORDB,LL_INFO10000,"DS:Step: Did TS\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS:Step: Did TS\n"));
         m_stepIn = true;
         TrapStepNext(&info);
     }
 
-    LOG((LF_CORDB,LL_INFO10000,"DS:Step: Did TS,TSO\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS:Step: Did TS,TSO\n"));
 
     EnableUnwind(m_fp);
 
@@ -6989,12 +7005,12 @@ TP_RESULT DebuggerStepper::TriggerPatch(DebuggerControllerPatch *patch,
                                    Thread *thread,
                                    TRIGGER_WHY tyWhy)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DeSt::TP\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DeSt::TP\n"));
 
     // If we're frozen, we may hit a patch but we just ignore it
     if (IsFrozen())
     {
-        LOG((LF_CORDB, LL_INFO1000000, "DS::TP, ignoring patch at %p during frozen state\n", patch->address));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO1000000, "DS::TP, ignoring patch at %p during frozen state\n", patch->address));
         return TPR_IGNORE;
     }
 
@@ -7031,7 +7047,7 @@ TP_RESULT DebuggerStepper::TriggerPatch(DebuggerControllerPatch *patch,
         StackTraceTicket ticket(patch);
         info.GetStackInfo(ticket, thread, LEAF_MOST_FRAME, context);
 
-        LOG((LF_CORDB, LL_INFO10000, "DS::TP: this:0x%p in %s::%s (fp:0x%p, "
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TP: this:0x%p in %s::%s (fp:0x%p, "
             "off:0x%p md:0x%p), \n\texception source:%s::%s (fp:0x%p)\n",
             this,
             info.m_activeFrame.md!=NULL?info.m_activeFrame.md->m_pszDebugClassName:"Unknown",
@@ -7057,7 +7073,7 @@ TP_RESULT DebuggerStepper::TriggerPatch(DebuggerControllerPatch *patch,
         if (managed)
         {
 
-            LOG((LF_CORDB, LL_INFO10000,
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                  "Frame (stub) patch hit at offset 0x%x\n", offset));
 
             // This is a stub patch. If it was a TRACE_FRAME_PUSH that
@@ -7124,12 +7140,12 @@ TP_RESULT DebuggerStepper::TriggerPatch(DebuggerControllerPatch *patch,
                 if (patch->trace.GetTraceType() != TRACE_MGR_PUSH)
                 {
                     _ASSERTE(fSafeToDoStackTrace);
-                    LOG((LF_CORDB,LL_INFO10000,"TSO for non TRACE_MGR_PUSH case\n"));
+                    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"TSO for non TRACE_MGR_PUSH case\n"));
                     TrapStepOut(&info);
                 }
                 else
                 {
-                    LOG((LF_CORDB, LL_INFO10000,
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                          "TSO for TRACE_MGR_PUSH case."));
 
                     // We'd better have a valid return address.
@@ -7157,7 +7173,7 @@ TP_RESULT DebuggerStepper::TriggerPatch(DebuggerControllerPatch *patch,
                                  LEAF_MOST_FRAME,
                                  NULL);
 
-                        LOG((LF_CORDB, LL_INFO10000,
+                        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                              "DS::TP: normally managed code AddPatch"
                              " in %s::%s, offset 0x%x\n",
                              mdNative->m_pszDebugClassName,
@@ -7175,7 +7191,7 @@ TP_RESULT DebuggerStepper::TriggerPatch(DebuggerControllerPatch *patch,
 
                 m_reason = STEP_NORMAL; //we tried to do a STEP_CALL, but since it didn't
                 //work, we're doing what amounts to a normal step.
-                LOG((LF_CORDB,LL_INFO10000,"DS 0x%x m_reason = STEP_NORMAL"
+                STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS 0x%x m_reason = STEP_NORMAL"
                      "(attempted call thru stub manager, SM didn't know where"
                      " we're going, so did a step out to original call\n",this));
             }
@@ -7200,7 +7216,7 @@ TP_RESULT DebuggerStepper::TriggerPatch(DebuggerControllerPatch *patch,
                 return TPR_IGNORE; //don't actually want to stop
             }
 
-            LOG((LF_CORDB, LL_INFO10000,
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
                  "Unmanaged step patch hit at 0x%x\n", offset));
 
             StackTraceTicket ticket(patch);
@@ -7217,13 +7233,13 @@ TP_RESULT DebuggerStepper::TriggerPatch(DebuggerControllerPatch *patch,
         return TPR_IGNORE; //don't actually want to stop
     }
 
-    LOG((LF_CORDB,LL_INFO10000, "DS: m_fp:0x%p, activeFP:0x%p fpExc:0x%p\n",
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS: m_fp:0x%p, activeFP:0x%p fpExc:0x%p\n",
         m_fp.GetSPValue(), info.m_activeFrame.fp.GetSPValue(), m_fpException.GetSPValue()));
 
     if (IsInRange(offset, m_range, m_rangeCount, &info) ||
         ShouldContinueStep( &info, offset))
     {
-        LOG((LF_CORDB, LL_INFO10000,
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
              "Intermediate step patch hit at 0x%x\n", offset));
 
         if (!TrapStep(&info, m_stepIn))
@@ -7234,7 +7250,7 @@ TP_RESULT DebuggerStepper::TriggerPatch(DebuggerControllerPatch *patch,
     }
     else
     {
-        LOG((LF_CORDB, LL_INFO10000, "Step patch hit at 0x%x\n", offset));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "Step patch hit at 0x%x\n", offset));
 
         // For a JMC stepper, we have an additional constraint:
         // skip non-user code. So if we're still in non-user code, then
@@ -7291,13 +7307,13 @@ void DebuggerStepper::TriggerMethodEnter(Thread * thread,
     _ASSERTE(!IsFrozen());
 
     MethodDesc * pDesc = dji->m_fd;
-    LOG((LF_CORDB, LL_INFO10000, "DJMCStepper::TME, desc=%p, addr=%p\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DJMCStepper::TME, desc=%p, addr=%p\n",
         pDesc, ip));
 
     // JMC steppers won't stop in Lightweight delegates. Just return & keep executing.
     if (pDesc->IsNoMetadata())
     {
-        LOG((LF_CORDB, LL_INFO100000, "DJMCStepper::TME, skipping b/c it's lw-codegen\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DJMCStepper::TME, skipping b/c it's lw-codegen\n"));
         return;
     }
 
@@ -7368,7 +7384,7 @@ void DebuggerStepper::TriggerMethodEnter(Thread * thread,
                   NULL // AppDomain
     );
 
-    LOG((LF_CORDB, LL_INFO10000, "DJMCStepper::TME, after setting patch to stop\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DJMCStepper::TME, after setting patch to stop\n"));
 
     // Once we resume, we'll go hit that patch (duh, we patched our return address)
     // Furthermore, we know the step will complete with reason = call, so set that now.
@@ -7381,7 +7397,7 @@ void DebuggerStepper::TriggerMethodEnter(Thread * thread,
 // We never single-step into calls (we place a patch at the call destination).
 bool DebuggerStepper::TriggerSingleStep(Thread *thread, const BYTE *ip)
 {
-    LOG((LF_CORDB,LL_INFO10000,"DS:TSS this:0x%x, @ ip:0x%x\n", this, ip));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS:TSS this:0x%x, @ ip:0x%x\n", this, ip));
 
     _ASSERTE(!IsFrozen());
 
@@ -7398,7 +7414,7 @@ bool DebuggerStepper::TriggerSingleStep(Thread *thread, const BYTE *ip)
 
     if (!g_pEEInterface->IsManagedNativeCode(ip))
     {
-        LOG((LF_CORDB,LL_INFO10000, "DS::TSS: not in managed code, Returning false (case 0)!\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::TSS: not in managed code, Returning false (case 0)!\n"));
         DisableSingleStep();
         return false;
     }
@@ -7428,7 +7444,7 @@ bool DebuggerStepper::TriggerSingleStep(Thread *thread, const BYTE *ip)
     // call here, just in case this IL stub is about to call the managed target (in the reverse interop case).
     if (fd->IsILStub())
     {
-        LOG((LF_CORDB,LL_INFO10000, "DS::TSS: not in managed code, Returning false (case 0)!\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::TSS: not in managed code, Returning false (case 0)!\n"));
         if (this->GetDCType() == DEBUGGER_CONTROLLER_STEPPER)
         {
             EnableTraceCall(info.m_activeFrame.fp);
@@ -7443,7 +7459,7 @@ bool DebuggerStepper::TriggerSingleStep(Thread *thread, const BYTE *ip)
 
     DisableAll();
 
-    LOG((LF_CORDB,LL_INFO10000, "DS::TSS m_fp:0x%x, activeFP:0x%x fpExc:0x%x\n",
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::TSS m_fp:0x%x, activeFP:0x%x fpExc:0x%x\n",
         m_fp.GetSPValue(), info.m_activeFrame.fp.GetSPValue(), m_fpException.GetSPValue()));
 
     if (DetectHandleLCGMethods((PCODE)ip, fd, &info))
@@ -7459,12 +7475,12 @@ bool DebuggerStepper::TriggerSingleStep(Thread *thread, const BYTE *ip)
 
         EnableUnwind(m_fp);
 
-        LOG((LF_CORDB,LL_INFO10000, "DS::TSS: Returning false Case 1!\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::TSS: Returning false Case 1!\n"));
         return false;
     }
     else
     {
-        LOG((LF_CORDB,LL_INFO10000, "DS::TSS: Returning true Case 2 for reason STEP_%02x!\n", m_reason));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000, "DS::TSS: Returning true Case 2 for reason STEP_%02x!\n", m_reason));
 
         // @todo - when would a single-step (not a patch) land us in user-code?
         // For a JMC stepper, we have an additional constraint:
@@ -7482,12 +7498,12 @@ bool DebuggerStepper::TriggerSingleStep(Thread *thread, const BYTE *ip)
 
 void DebuggerStepper::TriggerTraceCall(Thread *thread, const BYTE *ip)
 {
-    LOG((LF_CORDB,LL_INFO10000,"DS:TTC this:0x%x, @ ip:0x%x\n",this,ip));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS:TTC this:0x%x, @ ip:0x%x\n",this,ip));
     TraceDestination trace;
 
     if (IsFrozen())
     {
-        LOG((LF_CORDB,LL_INFO10000,"DS:TTC exit b/c of Frozen\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS:TTC exit b/c of Frozen\n"));
         return;
     }
 
@@ -7520,7 +7536,7 @@ void DebuggerStepper::TriggerTraceCall(Thread *thread, const BYTE *ip)
 
         EnableUnwind(m_fp);
 
-        LOG((LF_CORDB, LL_INFO10000, "DS::TTC potentially a step call!\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TTC potentially a step call!\n"));
     }
 }
 
@@ -7541,7 +7557,7 @@ void DebuggerStepper::TriggerUnwind(Thread *thread,
     }
     CONTRACTL_END;
 
-    LOG((LF_CORDB,LL_INFO10000,"DS::TU this:0x%p, in %s::%s, offset 0x%p "
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS::TU this:0x%p, in %s::%s, offset 0x%p "
         "frame:0x%p unwindReason:0x%x\n", this, fd->m_pszDebugClassName,
         fd->m_pszDebugMethodName, offset, fp.GetSPValue(), unwindReason));
 
@@ -7549,7 +7565,7 @@ void DebuggerStepper::TriggerUnwind(Thread *thread,
 
     if (IsFrozen())
     {
-        LOG((LF_CORDB,LL_INFO10000,"DS:TTC exit b/c of Frozen\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DS:TTC exit b/c of Frozen\n"));
         return;
     }
 
@@ -7568,7 +7584,7 @@ void DebuggerStepper::TriggerUnwind(Thread *thread,
         // the step-reason either).
         if (m_eMode == cStepOut)
         {
-            LOG((LF_CORDB, LL_INFO10000, "DS::TU Step-out, returning for same-frame case.\n"));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::TU Step-out, returning for same-frame case.\n"));
             return;
         }
 
@@ -7594,7 +7610,7 @@ void DebuggerStepper::TriggerUnwind(Thread *thread,
     // be jitted and placing the patch should work.
     CONSISTENCY_CHECK_MSGF(fOk, ("Failed to place patch at TriggerUnwind.\npThis=0x%p md=0x%p, native offset=0x%x\n", this, fd, offset));
 
-    LOG((LF_CORDB,LL_INFO100000,"Step reason:%s\n", unwindReason==STEP_EXCEPTION_FILTER
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO100000,"Step reason:%s\n", unwindReason==STEP_EXCEPTION_FILTER
         ? "STEP_EXCEPTION_FILTER":"STEP_EXCEPTION_HANDLER"));
     m_reason = unwindReason;
 }
@@ -7611,7 +7627,7 @@ void DebuggerStepper::PrepareForSendEvent(StackTraceTicket ticket)
     m_fReadyToSend = true;
 #endif
 
-    LOG((LF_CORDB, LL_INFO10000, "DS::SE m_fpStepInto:0x%x\n", m_fpStepInto.GetSPValue()));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::SE m_fpStepInto:0x%x\n", m_fpStepInto.GetSPValue()));
 
     if (m_fpStepInto != LEAF_MOST_FRAME)
     {
@@ -7628,12 +7644,12 @@ void DebuggerStepper::PrepareForSendEvent(StackTraceTicket ticket)
 
         {
             m_reason = STEP_CALL;
-            LOG((LF_CORDB, LL_INFO10000, "DS::SE this:0x%x STEP_CALL!\n", this));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::SE this:0x%x STEP_CALL!\n", this));
         }
 #ifdef _DEBUG
         else
         {
-            LOG((LF_CORDB, LL_INFO10000, "DS::SE this:0x%x not a step call!\n", this));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::SE this:0x%x not a step call!\n", this));
         }
 #endif
     }
@@ -7683,7 +7699,7 @@ bool DebuggerStepper::SendEvent(Thread *thread, bool fIpChanged)
     // This is technically an issue, but we consider it benign enough to leave in.
     _ASSERTE(!fIpChanged || !"Stepper interupted by SetIp");
 
-    LOG((LF_CORDB, LL_INFO10000, "DS::SE m_fpStepInto:0x%x\n", m_fpStepInto.GetSPValue()));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DS::SE m_fpStepInto:0x%x\n", m_fpStepInto.GetSPValue()));
 
     _ASSERTE(m_fReadyToSend);
     _ASSERTE(GetThread() == thread);
@@ -7743,12 +7759,12 @@ DebuggerJMCStepper::DebuggerJMCStepper(Thread *thread,
                     AppDomain *appDomain) :
     DebuggerStepper(thread, rgfMappingStop, interceptStop, appDomain)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DJMCStepper ctor, this=%p\n", this));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DJMCStepper ctor, this=%p\n", this));
 }
 
 DebuggerJMCStepper::~DebuggerJMCStepper()
 {
-    LOG((LF_CORDB, LL_INFO10000, "DJMCStepper dtor, this=%p\n", this));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DJMCStepper dtor, this=%p\n", this));
 }
 
 // If we're a JMC stepper, then don't stop in non-user code.
@@ -7768,7 +7784,7 @@ bool DebuggerJMCStepper::IsInterestingFrame(FrameInfo * pFrame)
     bool fIsUserCode = pInfo->IsJMCFunction();
 
 
-    LOG((LF_CORDB, LL_INFO1000000, "DS::TSO, frame '%s::%s' is '%s' code\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO1000000, "DS::TSO, frame '%s::%s' is '%s' code\n",
             pFrame->DbgGetClassName(), pFrame->DbgGetMethodName(),
             fIsUserCode ? "user" : "non-user"));
 
@@ -7781,7 +7797,7 @@ bool DebuggerJMCStepper::IsInterestingFrame(FrameInfo * pFrame)
 // So TrapStepNex at end of A2 should land us in A3.
 void DebuggerJMCStepper::TrapStepNext(ControllerStackInfo *info)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DJMCStepper::TrapStepNext, this=%p\n", this));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DJMCStepper::TrapStepNext, this=%p\n", this));
     EnableMethodEnter();
 
     // This will place a patch up the stack and set m_reason = STEP_RETURN.
@@ -7828,7 +7844,7 @@ bool DebuggerJMCStepper::TrapStepInHelper(
     SIZE_T offset = CodeRegionInfo::GetCodeRegionInfo(dji, pDesc).AddressToOffset(ipNext);
 
 
-    LOG((LF_CORDB, LL_INFO100000, "DJMCStepper::TSIH, at '%s::%s', calling=0x%p, next=0x%p, offset=%d\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DJMCStepper::TSIH, at '%s::%s', calling=0x%p, next=0x%p, offset=%d\n",
         pDesc->m_pszDebugClassName,
         pDesc->m_pszDebugMethodName,
         ipCallTarget, ipNext,
@@ -7869,7 +7885,7 @@ bool DebuggerJMCStepper::DetectHandleNonUserCode(ControllerStackInfo *pInfo, Deb
 
     if (!fIsUserCode)
     {
-        LOG((LF_CORDB, LL_INFO10000, "JMC stepper stopped in non-user code, continuing.\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "JMC stepper stopped in non-user code, continuing.\n"));
         // Not-user code, we want to skip through this.
 
         // We may be here while trying to step-out.
@@ -7932,13 +7948,13 @@ void DebuggerJMCStepper::TriggerMethodEnter(Thread * thread,
     _ASSERTE(!IsFrozen());
 
     MethodDesc * pDesc = dji->m_fd;
-    LOG((LF_CORDB, LL_INFO10000, "DJMCStepper::TME, desc=%p, addr=%p\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DJMCStepper::TME, desc=%p, addr=%p\n",
         pDesc, ip));
 
     // JMC steppers won't stop in Lightweight delegates. Just return & keep executing.
     if (pDesc->IsNoMetadata())
     {
-        LOG((LF_CORDB, LL_INFO100000, "DJMCStepper::TME, skipping b/c it's lw-codegen\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DJMCStepper::TME, skipping b/c it's lw-codegen\n"));
         return;
     }
 
@@ -7947,7 +7963,7 @@ void DebuggerJMCStepper::TriggerMethodEnter(Thread * thread,
     bool fIsUserCode = dmi->IsJMCFunction();
 
 
-    LOG((LF_CORDB, LL_INFO100000, "DJMCStepper::TME, '%s::%s' is '%s' code\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "DJMCStepper::TME, '%s::%s' is '%s' code\n",
         pDesc->m_pszDebugClassName,
         pDesc->m_pszDebugMethodName,
         fIsUserCode ? "user" : "non-user"
@@ -7974,7 +7990,7 @@ void DebuggerJMCStepper::TriggerMethodEnter(Thread * thread,
                   NULL // AppDomain
     );
 
-    LOG((LF_CORDB, LL_INFO10000, "DJMCStepper::TME, after setting patch to stop\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DJMCStepper::TME, after setting patch to stop\n"));
 
     // Once we resume, we'll go hit that patch (duh, we patched our return address)
     // Furthermore, we know the step will complete with reason = call, so set that now.
@@ -8046,7 +8062,7 @@ public:
         m_bits = 0;
         m_fpTop = fpTop;
 
-        LOG((LF_CORDB,LL_EVERYTHING, "ISI::Init - fpTop=%p, thread=%p, pContext=%p, contextValid=%d\n",
+        STRESS_LOG_VA2((LF_CORDB,LL_EVERYTHING, "ISI::Init - fpTop=%p, thread=%p, pContext=%p, contextValid=%d\n",
             fpTop.GetSPValue(), thread, pContext, contextValid));
 
         int result;
@@ -8114,7 +8130,7 @@ protected:
                 pThis->m_bits |= (int) INTERCEPT_CLASS_INIT;
             }
         }
-        LOG((LF_CORDB,LL_EVERYTHING,"ISI::WS- Frame=%p, fp=%p, Frame bits=%x, Cor bits=0x%x\n", pInfo->frame, pInfo->fp.GetSPValue(), i, pThis->m_bits));
+        STRESS_LOG_VA2((LF_CORDB,LL_EVERYTHING,"ISI::WS- Frame=%p, fp=%p, Frame bits=%x, Cor bits=0x%x\n", pInfo->frame, pInfo->fp.GetSPValue(), i, pThis->m_bits));
 
 
         // We can stop once we hit the top frame.
@@ -8137,7 +8153,7 @@ protected:
 // Return false if we're done.
 bool DebuggerJMCStepper::DetectHandleInterceptors(ControllerStackInfo * info)
 {
-    LOG((LF_CORDB,LL_INFO10000,"DJMCStepper::DHI: Start DetectHandleInterceptors\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DJMCStepper::DHI: Start DetectHandleInterceptors\n"));
 
     // For JMC, we could stop very far way from an interceptor.
     // So we have to do a stack walk to search for interceptors...
@@ -8171,18 +8187,18 @@ bool DebuggerJMCStepper::DetectHandleInterceptors(ControllerStackInfo * info)
     int iOnStack = (int) info2.GetInterceptorsInRange();
     int iSkip = ~((int) m_rgfInterceptStop);
 
-    LOG((LF_CORDB,LL_INFO10000,"DJMCStepper::DHI: iOnStack=%x, iSkip=%x\n", iOnStack, iSkip));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DJMCStepper::DHI: iOnStack=%x, iSkip=%x\n", iOnStack, iSkip));
 
     // If the bits on the stack contain any interceptors we want to skip, then we need to keep going.
     if ((iOnStack & iSkip) != 0)
     {
-        LOG((LF_CORDB,LL_INFO10000,"DJMCStepper::DHI: keep going!\n"));
+        STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DJMCStepper::DHI: keep going!\n"));
         TrapStepNext(info);
         EnableUnwind(m_fp);
         return true;
     }
 
-    LOG((LF_CORDB,LL_INFO10000,"DJMCStepper::DHI: Done!!\n"));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO10000,"DJMCStepper::DHI: Done!!\n"));
     return false;
 }
 
@@ -8194,7 +8210,7 @@ bool DebuggerJMCStepper::DetectHandleInterceptors(ControllerStackInfo * info)
 DebuggerThreadStarter::DebuggerThreadStarter(Thread *thread)
   : DebuggerController(thread, NULL)
 {
-    LOG((LF_CORDB, LL_INFO1000, "DTS::DTS: this:0x%x Thread:0x%x\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO1000, "DTS::DTS: this:0x%x Thread:0x%x\n",
         this, thread));
 
     // Check to make sure we only have 1 ThreadStarter on a given thread. (Inspired by NDPWhidbey issue 16888)
@@ -8214,7 +8230,7 @@ TP_RESULT DebuggerThreadStarter::TriggerPatch(DebuggerControllerPatch *patch,
     Module *module = patch->key.module;
     BOOL managed = patch->IsManagedPatch();
 
-    LOG((LF_CORDB,LL_INFO1000, "DebuggerThreadStarter::TriggerPatch for thread 0x%x\n", Debugger::GetThreadIdHelper(thread)));
+    STRESS_LOG_VA2((LF_CORDB,LL_INFO1000, "DebuggerThreadStarter::TriggerPatch for thread 0x%x\n", Debugger::GetThreadIdHelper(thread)));
 
     if (module == NULL && managed)
     {
@@ -8279,7 +8295,7 @@ TP_RESULT DebuggerThreadStarter::TriggerPatch(DebuggerControllerPatch *patch,
 
 void DebuggerThreadStarter::TriggerTraceCall(Thread *thread, const BYTE *ip)
 {
-    LOG((LF_CORDB, LL_EVERYTHING, "DTS::TTC called\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_EVERYTHING, "DTS::TTC called\n"));
 #ifdef DEBUGGING_SUPPORTED
     if (thread->GetDomain()->IsDebuggerAttached())
     {
@@ -8309,7 +8325,7 @@ bool DebuggerThreadStarter::SendEvent(Thread *thread, bool fIpChanged)
     // it certainly can't change its ip.
     _ASSERTE(!fIpChanged);
 
-    LOG((LF_CORDB, LL_INFO10000, "DTS::SE: in DebuggerThreadStarter's SendEvent\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DTS::SE: in DebuggerThreadStarter's SendEvent\n"));
 
     // Send the thread started event.
     g_pDebugger->ThreadStarted(thread);
@@ -8520,7 +8536,7 @@ bool DebuggerUserBreakpoint::SendEvent(Thread *thread, bool fIpChanged)
     // This is technically an issue, but it's too benign to fix.
     _ASSERTE(!fIpChanged);
 
-    LOG((LF_CORDB, LL_INFO10000,
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
          "DUB::SE: in DebuggerUserBreakpoint's SendEvent\n"));
 
     // Send the user breakpoint event.
@@ -8592,7 +8608,7 @@ bool DebuggerFuncEvalComplete::SendEvent(Thread *thread, bool fIpChanged)
     // so that will look like the IP changed on us.
     _ASSERTE(fIpChanged);
 
-    LOG((LF_CORDB, LL_INFO10000, "DFEC::SE: in DebuggerFuncEval's SendEvent\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DFEC::SE: in DebuggerFuncEval's SendEvent\n"));
 
     _ASSERTE(!ISREDIRECTEDTHREAD(thread));
 
@@ -8639,7 +8655,7 @@ DebuggerEnCBreakpoint::DebuggerEnCBreakpoint(SIZE_T offset,
     _ASSERTE( jitInfo != NULL );
     // Add and activate the specified patch
     AddBindAndActivateNativeManagedPatch(jitInfo->m_fd, jitInfo, offset, LEAF_MOST_FRAME, pAppDomain);
-    LOG((LF_ENC,LL_INFO1000, "DEnCBPDEnCBP::adding %S patch!\n",
+    STRESS_LOG_VA2((LF_ENC,LL_INFO1000, "DEnCBPDEnCBP::adding %S patch!\n",
         fTriggerType == REMAP_PENDING ? W("remap pending") : W("remap complete")));
 }
 
@@ -8680,7 +8696,7 @@ TP_RESULT DebuggerEnCBreakpoint::TriggerPatch(DebuggerControllerPatch *patch,
     // We only lay DebuggerEnCBreakpoints at sequence points
     _ASSERTE(map == MAPPING_EXACT);
 
-    LOG((LF_ENC, LL_ALWAYS,
+    STRESS_LOG_VA2((LF_ENC, LL_ALWAYS,
          "DEnCBP::TP: triggered E&C %S breakpoint: tid=0x%x, module=0x%08x, "
          "method def=0x%08x, version=%d, native offset=0x%x, IL offset=0x%x\n this=0x%x\n",
          m_fTriggerType == REMAP_PENDING ? W("ResumePending") : W("ResumeComplete"),
@@ -8696,7 +8712,7 @@ TP_RESULT DebuggerEnCBreakpoint::TriggerPatch(DebuggerControllerPatch *patch,
     // unless we got here on an explicit short-circuit, don't do any work
     if (tyWhy != TY_SHORT_CIRCUIT)
     {
-        LOG((LF_ENC, LL_ALWAYS, "DEnCBP::TP: not short-circuit ... bailing\n"));
+        STRESS_LOG_VA2((LF_ENC, LL_ALWAYS, "DEnCBP::TP: not short-circuit ... bailing\n"));
         return TPR_IGNORE;
     }
 
@@ -8711,7 +8727,7 @@ TP_RESULT DebuggerEnCBreakpoint::TriggerPatch(DebuggerControllerPatch *patch,
 
     _ASSERTE(pFD != NULL);
 
-    LOG((LF_ENC, LL_ALWAYS,
+    STRESS_LOG_VA2((LF_ENC, LL_ALWAYS,
          "DEnCBP::TP: in %s::%s\n", pFD->m_pszDebugClassName,pFD->m_pszDebugMethodName));
 
     // Grab the jit info for the original copy of the method, which is
@@ -8760,7 +8776,7 @@ TP_RESULT DebuggerEnCBreakpoint::TriggerPatch(DebuggerControllerPatch *patch,
     // nothing and try again on next RemapFunction breakpoint
     g_pDebugger->LockAndSendEnCRemapEvent(pJitInfo, currentIP, &resumeIP);
 
-    LOG((LF_ENC, LL_ALWAYS,
+    STRESS_LOG_VA2((LF_ENC, LL_ALWAYS,
          "DEnCBP::TP: resume IL offset is 0x%x\n", resumeIP));
 
     // Has the debugger requested a remap?
@@ -8775,7 +8791,7 @@ TP_RESULT DebuggerEnCBreakpoint::TriggerPatch(DebuggerControllerPatch *patch,
         _ASSERTE(!"Returned from ResumeInUpdatedFunction!");
     }
 
-    LOG((LF_CORDB, LL_ALWAYS, "DEnCB::TP: We've returned from ResumeInUpd"
+    STRESS_LOG_VA2((LF_CORDB, LL_ALWAYS, "DEnCB::TP: We've returned from ResumeInUpd"
         "atedFunction, we're going to skip the EnC patch ####\n"));
 
     // We're returning then we'll have to re-get this lock. Be careful that we haven't kept any controller/patches
@@ -8798,7 +8814,7 @@ TP_RESULT DebuggerEnCBreakpoint::HandleRemapComplete(DebuggerControllerPatch *pa
                                                      Thread *thread,
                                                      TRIGGER_WHY tyWhy)
 {
-    LOG((LF_ENC, LL_ALWAYS, "DEnCBP::HRC: HandleRemapComplete\n"));
+    STRESS_LOG_VA2((LF_ENC, LL_ALWAYS, "DEnCBP::HRC: HandleRemapComplete\n"));
 
     // Debugging code to enable a break after N RemapCompletes
 #ifdef _DEBUG
@@ -8826,7 +8842,7 @@ TP_RESULT DebuggerEnCBreakpoint::HandleRemapComplete(DebuggerControllerPatch *pa
     // if have somehow updated this function before we resume into it then just bail
     if (fApplied)
     {
-        LOG((LF_ENC, LL_ALWAYS, "DEnCBP::HRC:  function already updated, ignoring\n"));
+        STRESS_LOG_VA2((LF_ENC, LL_ALWAYS, "DEnCBP::HRC:  function already updated, ignoring\n"));
         return TPR_IGNORE_AND_STOP;
     }
 
@@ -8834,12 +8850,12 @@ TP_RESULT DebuggerEnCBreakpoint::HandleRemapComplete(DebuggerControllerPatch *pa
     // over the DJIs for the DMI as in BindPatch up above.
     MethodDesc *pFD = g_pEEInterface->FindLoadedMethodRefOrDef(patch->key.module, patch->key.md);
 
-    LOG((LF_ENC, LL_ALWAYS, "DEnCBP::HRC: unlocking controller\n"));
+    STRESS_LOG_VA2((LF_ENC, LL_ALWAYS, "DEnCBP::HRC: unlocking controller\n"));
 
     // Unlock the controller lock and dispatch the remap complete event
     CrstBase::UnsafeCrstInverseHolder inverseLock(&g_criticalSection);
 
-    LOG((LF_ENC, LL_ALWAYS, "DEnCBP::HRC: sending RemapCompleteEvent\n"));
+    STRESS_LOG_VA2((LF_ENC, LL_ALWAYS, "DEnCBP::HRC: sending RemapCompleteEvent\n"));
 
     g_pDebugger->LockAndSendEnCRemapCompleteEvent(pFD);
 
@@ -8898,7 +8914,7 @@ TP_RESULT DebuggerContinuableExceptionBreakpoint::TriggerPatch(DebuggerControlle
                                                                Thread *thread,
                                                                TRIGGER_WHY tyWhy)
 {
-    LOG((LF_CORDB, LL_INFO10000, "DCEBP::TP\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000, "DCEBP::TP\n"));
 
     //
     // Disable the patch
@@ -8932,7 +8948,7 @@ bool DebuggerContinuableExceptionBreakpoint::SendEvent(Thread *thread, bool fIpC
 
 
 
-    LOG((LF_CORDB, LL_INFO10000,
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO10000,
          "DCEBP::SE: in DebuggerContinuableExceptionBreakpoint's SendEvent\n"));
 
     if (!fIpChanged)

@@ -140,7 +140,7 @@ void ArmSingleStepper::Enable()
         return;
     }
 
-    LOG((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Enable\n"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Enable\n"));
     
     m_fBypass = false;
     m_opcodes[0] = 0;
@@ -167,7 +167,7 @@ void ArmSingleStepper::Bypass(DWORD ip, WORD opcode1, WORD opcode2)
     }
     
 
-    LOG((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Bypass(pc=%x, opcode=%x %x)\n", (DWORD)ip, (DWORD)opcode1, (DWORD)opcode2));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Bypass(pc=%x, opcode=%x %x)\n", (DWORD)ip, (DWORD)opcode1, (DWORD)opcode2));
 
     m_fBypass = true;
     m_originalPc = ip;
@@ -200,7 +200,7 @@ void ArmSingleStepper::Apply(T_CONTEXT *pCtx)
     WORD opcode1 = m_opcodes[0];
     WORD opcode2 = m_opcodes[1];
 
-    LOG((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Apply(pc=%x, opcode=%x %x)\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Apply(pc=%x, opcode=%x %x)\n",
                                   (DWORD)pCtx->Pc, (DWORD)opcode1, (DWORD)opcode2));
     
 #ifdef _DEBUG
@@ -290,7 +290,7 @@ void ArmSingleStepper::Apply(T_CONTEXT *pCtx)
 
     if (m_originalITState.InITBlock() && !ConditionHolds(pCtx, m_originalITState.CurrentCondition()))
     {
-        LOG((LF_CORDB, LL_INFO100000, "ArmSingleStepper: Case 1: ITState::Clear;\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "ArmSingleStepper: Case 1: ITState::Clear;\n"));
         // Case 1: The current instruction is a no-op because due to the IT instruction. We've already set the
         //         target PC to the next instruction slot. Disable the IT block since we want our breakpoint
         //         to execute. We'll put the correct value back during fixup.
@@ -300,7 +300,7 @@ void ArmSingleStepper::Apply(T_CONTEXT *pCtx)
     }
     else if (TryEmulate(pCtx, opcode1, opcode2, false))
     {
-        LOG((LF_CORDB, LL_INFO100000, "ArmSingleStepper: Case 2: Emulate\n"));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "ArmSingleStepper: Case 2: Emulate\n"));
         // Case 2: Successfully emulated an instruction that reads or writes the PC. Cache the new target PC
         //         so upon fixup we'll resume execution there rather than the following instruction. No need
         //         to mess with IT state since we know the next instruction is scheduled to execute (we dealt
@@ -314,7 +314,7 @@ void ArmSingleStepper::Apply(T_CONTEXT *pCtx)
     }
     else
     {
-        LOG((LF_CORDB, LL_INFO100000, "ArmSingleStepper: Case 3: CopyInstruction. Is32Bit=%d\n", (DWORD)Is32BitInstruction(opcode1)));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "ArmSingleStepper: Case 3: CopyInstruction. Is32Bit=%d\n", (DWORD)Is32BitInstruction(opcode1)));
         // Case 3: In all other cases copy the instruction to the buffer and we'll run it directly. If we're
         //         in an IT block there could be up to three instructions following this one whose execution
         //         is skipped. We could try to be clever here and either alter IT state to force the next
@@ -397,7 +397,7 @@ bool ArmSingleStepper::Fixup(T_CONTEXT *pCtx, DWORD dwExceptionCode)
         {
             if (m_rgCode[0] != kBreakpointOp)
             {
-                LOG((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Fixup executed code, ip = %x\n", m_targetPc));
+                STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Fixup executed code, ip = %x\n", m_targetPc));
 
                 pCtx->Pc = m_targetPc;
                 if (!m_fEmulatedITInstruction)
@@ -410,7 +410,7 @@ bool ArmSingleStepper::Fixup(T_CONTEXT *pCtx, DWORD dwExceptionCode)
                 if (m_fSkipIT)
                 {
                     // We needed to skip over an instruction due to a false condition in an IT block.
-                    LOG((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Fixup skipped instruction due to IT\n"));
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Fixup skipped instruction due to IT\n"));
                     pCtx->Pc = m_targetPc;
 
                     _ASSERTE(!m_fEmulatedITInstruction);
@@ -422,7 +422,7 @@ bool ArmSingleStepper::Fixup(T_CONTEXT *pCtx, DWORD dwExceptionCode)
                     // We've hit a breakpoint in the code stream.  We will return false here (which causes us to NOT
                     // replace the breakpoint code with single step), and place the Pc back to the original Pc.  The
                     // debugger patch skipping code will move past this breakpoint.
-                    LOG((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Fixup emulated breakpoint\n"));
+                    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Fixup emulated breakpoint\n"));
                     pCtx->Pc = m_originalPc;
                 
                     _ASSERTE(pCtx->Pc & THUMB_CODE);
@@ -438,7 +438,7 @@ bool ArmSingleStepper::Fixup(T_CONTEXT *pCtx, DWORD dwExceptionCode)
             if (!m_fRedirectedPc)
                 pCtx->Pc = m_targetPc;
 
-            LOG((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Fixup emulated, ip = %x\n", pCtx->Pc));
+            STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Fixup emulated, ip = %x\n", pCtx->Pc));
         }
     }
     else
@@ -451,7 +451,7 @@ bool ArmSingleStepper::Fixup(T_CONTEXT *pCtx, DWORD dwExceptionCode)
         pCtx->Pc = m_originalPc;
         m_originalITState.Set(pCtx);
         
-        LOG((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Fixup hit exception pc = %x ex = %x\n", pCtx->Pc, dwExceptionCode));
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "ArmSingleStepper::Fixup hit exception pc = %x ex = %x\n", pCtx->Pc, dwExceptionCode));
     }
     
     _ASSERTE(pCtx->Pc & THUMB_CODE);
@@ -638,7 +638,7 @@ bool ArmSingleStepper::GetMem(DWORD *pdwResult, DWORD_PTR pAddress, DWORD cbSize
 // faulted trying to read memory during the emulation) no state is updated and false is returned instead.
 bool ArmSingleStepper::TryEmulate(T_CONTEXT *pCtx, WORD opcode1, WORD opcode2, bool execute)
 {
-    LOG((LF_CORDB, LL_INFO100000, "ArmSingleStepper::TryEmulate(opcode=%x %x, execute=%s)\n", (DWORD)opcode1, (DWORD)opcode2, execute ? "true" : "false"));
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "ArmSingleStepper::TryEmulate(opcode=%x %x, execute=%s)\n", (DWORD)opcode1, (DWORD)opcode2, execute ? "true" : "false"));
 
     // Track whether instruction emulation wrote a modified PC.
     m_fRedirectedPc = false;
@@ -1214,7 +1214,7 @@ bool ArmSingleStepper::TryEmulate(T_CONTEXT *pCtx, WORD opcode1, WORD opcode2, b
             SetReg(pCtx, 15, GetReg(pCtx, 15) - 2);
     }
     
-    LOG((LF_CORDB, LL_INFO100000, "ArmSingleStepper::TryEmulate(opcode=%x %x) emulated=%s redirectedPc=%s\n",
+    STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "ArmSingleStepper::TryEmulate(opcode=%x %x) emulated=%s redirectedPc=%s\n",
         (DWORD)opcode1, (DWORD)opcode2, fEmulated ? "true" : "false", m_fRedirectedPc ? "true" : "false"));
     return fEmulated;
 }

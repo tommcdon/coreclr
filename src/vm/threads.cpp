@@ -7583,6 +7583,18 @@ void Thread::SetFilterContext(CONTEXT *pContext)
         PRECONDITION(GetThread() == this); // must be on current thread.
     } CONTRACTL_END;
 
+    if (pContext != NULL)
+    {
+        REGDISPLAY rd;
+        FillRegDisplay(&rd, pContext);
+
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "SetFilterContext[%x] : PC=0x%x RC0=0x%x\n", m_ThreadId, rd.pPC, rd.volatileCurrContextPointers.R0));
+    }
+    else
+    {
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "SetFilterContext[%x] : NULL\n", m_ThreadId));
+    }
+
     m_debuggerFilterContext = pContext;
 }
 
@@ -7592,7 +7604,18 @@ T_CONTEXT *Thread::GetFilterContext(void)
 {
     LIMITED_METHOD_DAC_CONTRACT;
 
-   return m_debuggerFilterContext;
+    if (m_debuggerFilterContext != NULL)
+    {
+        REGDISPLAY rd;
+        FillRegDisplay(&rd, m_debuggerFilterContext);
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "GetFilterContext[%x] : PC=0x%x RC0=0x%x\n"", m_ThreadId, rd.pPC, rd.volatileCurrContextPointers.R0));
+    }
+    else
+    {
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "GetFilterContext[%x] : NULL\n"", m_ThreadId));
+    }
+
+    return m_debuggerFilterContext;
 }
 
 #ifndef DACCESS_COMPILE

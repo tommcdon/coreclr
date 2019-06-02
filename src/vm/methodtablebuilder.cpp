@@ -1334,7 +1334,7 @@ MethodTableBuilder::BuildMethodTableThrowing(
 
     // If not NULL, it means there are some by-value fields, and this contains an entry for each inst
 
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
     // Set debug class name string for easier debugging.
     LPCUTF8 className;
     LPCUTF8 nameSpace;
@@ -1359,11 +1359,11 @@ MethodTableBuilder::BuildMethodTableThrowing(
         GetHalfBakedClass()->SetDebugClassName(name);
     }
 
-    if (g_pConfig->ShouldBreakOnClassBuild(className))
-    {
-        CONSISTENCY_CHECK_MSGF(false, ("BreakOnClassBuild: typename '%s' ", className));
-        GetHalfBakedClass()->m_fDebuggingClass = TRUE;
-    }
+    //if (g_pConfig->ShouldBreakOnClassBuild(className))
+    //{
+    //    CONSISTENCY_CHECK_MSGF(false, ("BreakOnClassBuild: typename '%s' ", className));
+    //    GetHalfBakedClass()->m_fDebuggingClass = TRUE;
+    //}
 
     LPCUTF8 pszDebugName,pszDebugNamespace;
     if (FAILED(pModule->GetMDImport()->GetNameOfTypeDef(bmtInternal->pType->GetTypeDefToken(), &pszDebugName, &pszDebugNamespace)))
@@ -1399,7 +1399,7 @@ MethodTableBuilder::BuildMethodTableThrowing(
         pModule->GetDomain(),
         (pModule->IsSystem()) ? "System Domain" : ""
     ));
-#endif // _DEBUG
+//#endif // _DEBUG
 
     // If this is mscorlib, then don't perform some sanity checks on the layout
     bmtProp->fNoSanityChecks = ((g_pObjectClass == NULL) || pModule == g_pObjectClass->GetModule()) ||
@@ -10280,7 +10280,7 @@ MethodTableBuilder::SetupMethodTable2(
         pChunk->SetMethodTable(pMT);
     }
 
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
     {
         // disable ibc logging because we can assert in ComputerPreferredZapModule for partially constructed
         // generic types 
@@ -10303,7 +10303,7 @@ MethodTableBuilder::SetupMethodTable2(
             }
         }
     }
-#endif // _DEBUG
+//#endif // _DEBUG
 
     // Note that for value classes, the following calculation is only appropriate
     // when the instance is in its "boxed" state.
@@ -11761,7 +11761,7 @@ MethodTableBuilder::GatherGenericsInfo(
             bmtGenericsInfo->fSharedByGenericInstantiations = TypeHandle::IsCanonicalSubtypeInstantiation(inst);
             _ASSERTE(bmtGenericsInfo->fSharedByGenericInstantiations == ClassLoader::IsSharableInstantiation(inst));
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
             // Set typical instantiation MethodTable
             {
                 MethodTable * pTypicalInstantiationMT = pModule->LookupTypeDef(cl).AsMethodTable();
@@ -11769,7 +11769,7 @@ MethodTableBuilder::GatherGenericsInfo(
                 _ASSERTE(pTypicalInstantiationMT != NULL);
                 bmtGenericsInfo->dbg_pTypicalInstantiationMT = pTypicalInstantiationMT;
             }
-#endif //_DEBUG
+//#endif //_DEBUG
         }
         
         TypeHandle * pDestInst = (TypeHandle *)inst.GetRawArgs();
@@ -11972,7 +11972,7 @@ ClassLoader::CreateTypeHandleForTypeDefThrowing(
             pAssembly->ThrowTypeLoadException(pInternalImport, cl, BFA_CANNOT_INHERIT_FROM_DELEGATE);
         }
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
         // Only MultiCastDelegate should inherit from Delegate
         LPCUTF8 className;
         LPCUTF8 nameSpace;
@@ -11981,7 +11981,7 @@ ClassLoader::CreateTypeHandleForTypeDefThrowing(
             className = nameSpace = "Invalid TypeDef record";
         }
         BAD_FORMAT_NOTHROW_ASSERT(strcmp(className, "MulticastDelegate") == 0);
-#endif
+//#endif
     }
 
     if (fIsDelegate)
