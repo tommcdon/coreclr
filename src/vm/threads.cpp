@@ -7588,7 +7588,11 @@ void Thread::SetFilterContext(CONTEXT *pContext)
         REGDISPLAY rd;
         FillRegDisplay(&rd, pContext);
 
+#ifdef _TARGET_ARM_
         STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "SetFilterContext[%x] : PC=0x%x RC0=0x%x\n", m_ThreadId, rd.pPC, rd.volatileCurrContextPointers.R0));
+#else
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "SetFilterContext[%x] : PC=0x%x\n", m_ThreadId, rd.ControlPC));
+#endif
     }
     else
     {
@@ -7608,7 +7612,11 @@ T_CONTEXT *Thread::GetFilterContext(void)
     {
         REGDISPLAY rd;
         FillRegDisplay(&rd, m_debuggerFilterContext);
+#ifdef _TARGET_ARM_
         STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "GetFilterContext[%x] : PC=0x%x RC0=0x%x\n", m_ThreadId, rd.pPC, rd.volatileCurrContextPointers.R0));
+#else
+        STRESS_LOG_VA2((LF_CORDB, LL_INFO100000, "GetFilterContext[%x] : PC=0x%x RC0=0x%x\n", m_ThreadId, rd.ControlPC));
+#endif
     }
     else
     {

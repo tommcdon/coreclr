@@ -10,6 +10,9 @@
 #ifndef __strike_h__
 #define __strike_h__
 
+#define NOPENOPE
+#define STRESS_LOG_VA2(msg) 
+
 #ifndef _countof
 #define _countof(x) (sizeof(x)/sizeof(x[0]))
 #endif

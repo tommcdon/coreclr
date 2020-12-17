@@ -12,8 +12,6 @@
 #define _TARGET_ARM_
 #endif
 
-#define NOPENOPE
-#define STRESS_LOG_VA2(msg) 
 
 #include "strike.h"
 #include "util.h"
@@ -39,7 +37,6 @@ namespace ARMGCDump
 #define LOG(x)
 #define LOG_PIPTR(pObjRef, gcFlags, hCallBack)
 #define DAC_ARG(x)
-
 #include "gcdumpnonx86.cpp"
 }
 #endif // !FEATURE_PAL

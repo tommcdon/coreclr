@@ -175,7 +175,8 @@ ASMCONSTANTS_C_ASSERT(UMThunkMarshInfo__m_cbActualArgSize == offsetof(UMThunkMar
 
 
 //#define MethodDesc__m_wFlags DBG_FRE(0x1A, 0x06)
-//ASMCONSTANTS_C_ASSERT(MethodDesc__m_wFlags == offsetof(MethodDesc, m_wFlags))
+#define MethodDesc__m_wFlags 0x1A
+ASMCONSTANTS_C_ASSERT(MethodDesc__m_wFlags == offsetof(MethodDesc, m_wFlags))
 
 #define MethodDesc__mdcClassification 0x7
 ASMCONSTANTS_C_ASSERT(MethodDesc__mdcClassification == mdcClassification)

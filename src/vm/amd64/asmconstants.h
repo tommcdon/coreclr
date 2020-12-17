@@ -118,7 +118,8 @@ ASMCONSTANTS_C_ASSERT(OFFSETOF__UMThunkMarshInfo__m_cbActualArgSize
 
 #ifdef FEATURE_COMINTEROP
 
-#define               OFFSETOF__ComPlusCallMethodDesc__m_pComPlusCallInfo        DBG_FRE(0x30, 0x08)
+//#define               OFFSETOF__ComPlusCallMethodDesc__m_pComPlusCallInfo        DBG_FRE(0x30, 0x08)
+#define               OFFSETOF__ComPlusCallMethodDesc__m_pComPlusCallInfo        0x30
 ASMCONSTANTS_C_ASSERT(OFFSETOF__ComPlusCallMethodDesc__m_pComPlusCallInfo
                     == offsetof(ComPlusCallMethodDesc, m_pComPlusCallInfo));
 
@@ -179,7 +180,8 @@ ASMCONSTANTS_C_ASSERT(OFFSETOF__ThreadExceptionState__m_pCurrentTracker
 
 
 
-#define               OFFSETOF__NDirectMethodDesc__m_pWriteableData DBG_FRE(0x48, 0x20)
+//#define               OFFSETOF__NDirectMethodDesc__m_pWriteableData DBG_FRE(0x48, 0x20)
+#define               OFFSETOF__NDirectMethodDesc__m_pWriteableData 0x48
 ASMCONSTANTS_C_ASSERT(OFFSETOF__NDirectMethodDesc__m_pWriteableData == offsetof(NDirectMethodDesc, ndirect.m_pWriteableData));
 
 #define           OFFSETOF__DelegateObject___methodPtr      0x18
@@ -350,7 +352,8 @@ ASMCONSTANTS_C_ASSERT(OFFSETOF__LazyMachState__m_CaptureRip
 ASMCONSTANTS_C_ASSERT(OFFSETOF__LazyMachState__m_CaptureRsp
                     == offsetof(LazyMachState, m_CaptureRsp));
 
-#define               OFFSETOF__MethodDesc__m_wFlags        DBG_FRE(0x2E, 0x06)
+//#define               OFFSETOF__MethodDesc__m_wFlags        DBG_FRE(0x2E, 0x06)
+#define               OFFSETOF__MethodDesc__m_wFlags        0x2E
 ASMCONSTANTS_C_ASSERT(OFFSETOF__MethodDesc__m_wFlags == offsetof(MethodDesc, m_wFlags));
                     
 #define               OFFSETOF__VASigCookie__pNDirectILStub     0x8

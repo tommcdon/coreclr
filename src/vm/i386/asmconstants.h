@@ -274,7 +274,8 @@ ASMCONSTANTS_C_ASSERT(StackImbalanceCookie__m_dwSavedEsp     == offsetof(StackIm
 ASMCONSTANTS_C_ASSERT(StackImbalanceCookie__HAS_FP_RETURN_VALUE == StackImbalanceCookie::HAS_FP_RETURN_VALUE)
 #endif // MDA_SUPPORTED
 
-#define MethodDesc_m_wFlags                   DBG_FRE(0x1a, 0x06)
+//#define MethodDesc_m_wFlags                   DBG_FRE(0x1a, 0x06)
+#define MethodDesc_m_wFlags                   0x1a
 ASMCONSTANTS_C_ASSERT(MethodDesc_m_wFlags == offsetof(MethodDesc, m_wFlags))
 
 #define MethodDesc_mdcClassification          7
@@ -283,7 +284,8 @@ ASMCONSTANTS_C_ASSERT(MethodDesc_mdcClassification == mdcClassification)
 #define MethodDesc_mcComInterop               6
 ASMCONSTANTS_C_ASSERT(MethodDesc_mcComInterop == mcComInterop)
 
-#define ComPlusCallMethodDesc__m_pComPlusCallInfo DBG_FRE(0x1C, 0x8)
+//#define ComPlusCallMethodDesc__m_pComPlusCallInfo DBG_FRE(0x1C, 0x8)
+#define ComPlusCallMethodDesc__m_pComPlusCallInfo 0x1C
 ASMCONSTANTS_C_ASSERT(ComPlusCallMethodDesc__m_pComPlusCallInfo == offsetof(ComPlusCallMethodDesc, m_pComPlusCallInfo))
 
 #define ComPlusCallInfo__m_pRetThunk 0x10
