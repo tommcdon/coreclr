@@ -318,3 +318,10 @@ sandbox
 
 #IL linker for testing
 linker
+
+
+.dotnet
+.packages
+src/.nuget
+tests/scripts/optdata
+src/ToolBox/SOS/NETCore/SOS.NETCore.csproj.nuget.dgspec.json
