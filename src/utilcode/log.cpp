@@ -25,7 +25,7 @@
 
 #ifdef LOGGING
 
-#define DEFAULT_LOGFILE_NAME    W("C:\\Data\\tmp\\COMPLUSFOOFOO.LOG")
+#define DEFAULT_LOGFILE_NAME    W("C:\\Data\\tmp\\COMPLUS.LOG")
 
 #define LOG_ENABLE_FILE_LOGGING         0x0001
 #define LOG_ENABLE_FLUSH_FILE           0x0002
