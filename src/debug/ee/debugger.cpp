@@ -9,7 +9,9 @@
 // Debugger runtime controller routines.
 //
 //*****************************************************************************
+#ifndef LOGGING
 #define LOGGING
+#endif
 
 #include "stdafx.h"
 #include "debugdebugger.h"

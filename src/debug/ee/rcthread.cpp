@@ -9,7 +9,9 @@
 // Runtime Controller Thread
 //
 //*****************************************************************************
+#ifndef LOGGING
 #define LOGGING
+#endif
 
 
 #include "stdafx.h"

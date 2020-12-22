@@ -12,10 +12,11 @@
 // build, define logging independent of _DEBUG here and each place you want
 // to use it.
 //
-#define LOGGING
 
-#ifdef _DEBUG
+#ifndef LOGGING
+//#ifdef _DEBUG
 #define LOGGING
+//#endif
 #endif
 
 #include "log.h"

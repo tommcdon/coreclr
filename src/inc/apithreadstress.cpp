@@ -8,9 +8,11 @@
 
 #include "stdafx.h"
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
+#ifndef LOGGING
 #define LOGGING 1
 #endif
+//#endif
 
 #include "apithreadstress.h"
 #include "clrhost.h"

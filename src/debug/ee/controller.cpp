@@ -17,7 +17,9 @@
 // ****************************************************************************
 // Putting code & #includes, #defines, etc, before the stdafx.h will
 // cause the code,etc, to be silently ignored
+#ifndef LOGGING
 #define LOGGING
+#endif
 
 #include "stdafx.h"
 #include "openum.h"

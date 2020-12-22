@@ -12,11 +12,11 @@
 
 #include "gcinfoencoder.h"
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     #ifndef LOGGING
         #define LOGGING
     #endif
-#endif
+//#endif
 
 #ifndef STANDALONE_BUILD
 #include "log.h"

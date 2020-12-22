@@ -30,8 +30,10 @@
 
 #define FEATURE_SHARE_GENERIC_CODE
 
-#if defined(_DEBUG) && !defined(DACCESS_COMPILE)
+#ifndef LOGGING
+#if /*defined(_DEBUG) &&*/ !defined(DACCESS_COMPILE)
     #define LOGGING
+#endif
 #endif
 
 #if !defined(_TARGET_X86_) || defined(FEATURE_PAL)
