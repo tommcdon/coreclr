@@ -116,6 +116,8 @@
 // * code:Nullable#NullableFeature - the Nullable<T> type has special runtime semantics associated with
 //     boxing this describes this feature.
 
+#define LOGGING
+
 #include "common.h"
 
 #include "vars.hpp"

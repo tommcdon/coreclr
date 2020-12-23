@@ -10,10 +10,8 @@
 #ifndef __MDLog_h__
 #define __MDLog_h__
 
-#ifndef LOGGING
-#if /*defined(_DEBUG) &&*/ !defined(DACCESS_COMPILE)
+#if defined(_DEBUG) && !defined(DACCESS_COMPILE)
 #define LOGGING
-#endif
 #endif
 
 #include <log.h>
