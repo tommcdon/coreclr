@@ -42,9 +42,9 @@ int __cdecl compareCGCDescSeries(const void *arg1, const void *arg2)
 
 const char* FormatSig(MethodDesc* pMD, LoaderHeap *pHeap, AllocMemTracker *pamTracker);
 
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
 unsigned g_dupMethods = 0;
-#endif // _DEBUG
+//#endif // _DEBUG
 
 //==========================================================================
 // This function is very specific about how it constructs a EEClass.  It first
@@ -5090,7 +5090,7 @@ MethodTableBuilder::InitNewMethodDesc(
         }
     }
     
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
     LPCUTF8 pszDebugMethodName;
     if (FAILED(GetMDImport()->GetNameOfMethodDef(pMethod->GetMethodSignature().GetToken(), &pszDebugMethodName)))
     {
@@ -5103,7 +5103,7 @@ MethodTableBuilder::InitNewMethodDesc(
     size_t len = safeLen.Value();
     LPCUTF8 pszDebugMethodNameCopy = (char*) AllocateFromLowFrequencyHeap(safeLen);
     strcpy_s((char *) pszDebugMethodNameCopy, len, pszDebugMethodName);
-#endif // _DEBUG
+//#endif // _DEBUG
 
     // Do the init specific to each classification of MethodDesc & assign some common fields
     InitMethodDesc(pNewMD,
@@ -5114,10 +5114,13 @@ MethodTableBuilder::InitNewMethodDesc(
                    FALSE,
                    pMethod->GetRVA(),
                    GetMDImport(),
-                   pName
-                   COMMA_INDEBUG(pszDebugMethodNameCopy)
-                   COMMA_INDEBUG(GetDebugClassName())
-                   COMMA_INDEBUG("") // FIX this happens on global methods, give better info
+                   pName,
+                //    COMMA_INDEBUG(pszDebugMethodNameCopy)
+                //    COMMA_INDEBUG(GetDebugClassName())
+                //    COMMA_INDEBUG("") // FIX this happens on global methods, give better info
+                   pszDebugMethodNameCopy,
+                   GetDebugClassName(),
+                   "" // FIX this happens on global methods, give better info
                   );
 
     pMethod->SetMethodDesc(pNewMD);
@@ -5926,10 +5929,13 @@ MethodTableBuilder::InitMethodDesc(
     BOOL                fEnC,
     DWORD               RVA,        // Only needed for NDirect case
     IMDInternalImport * pIMDII,     // Needed for NDirect, EEImpl(Delegate) cases
-    LPCSTR              pMethodName // Only needed for mcEEImpl (Delegate) case
-    COMMA_INDEBUG(LPCUTF8 pszDebugMethodName)
-    COMMA_INDEBUG(LPCUTF8 pszDebugClassName)
-    COMMA_INDEBUG(LPCUTF8 pszDebugMethodSignature)
+    LPCSTR              pMethodName, // Only needed for mcEEImpl (Delegate) case
+    // COMMA_INDEBUG(LPCUTF8 pszDebugMethodName)
+    // COMMA_INDEBUG(LPCUTF8 pszDebugClassName)
+    // COMMA_INDEBUG(LPCUTF8 pszDebugMethodSignature)
+    LPCUTF8 pszDebugMethodName,
+    LPCUTF8 pszDebugClassName,
+    LPCUTF8 pszDebugMethodSignature
     )
 {
     CONTRACTL
@@ -6092,7 +6098,7 @@ MethodTableBuilder::InitMethodDesc(
 #endif // !_DEBUG
         pNewMD->SetSynchronized();
 
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
     pNewMD->m_pszDebugMethodName = (LPUTF8)pszDebugMethodName;
     pNewMD->m_pszDebugClassName  = (LPUTF8)pszDebugClassName;
     pNewMD->m_pDebugMethodTable.SetValue(GetHalfBakedMethodTable());
@@ -6101,7 +6107,7 @@ MethodTableBuilder::InitMethodDesc(
         pNewMD->m_pszDebugMethodSignature = FormatSig(pNewMD,pNewMD->GetLoaderAllocator()->GetLowFrequencyHeap(),GetMemTracker());
     else
         pNewMD->m_pszDebugMethodSignature = pszDebugMethodSignature;
-#endif // _DEBUG
+//#endif // _DEBUG
 } // MethodTableBuilder::InitMethodDesc
 
 //*******************************************************************************
@@ -10667,7 +10673,8 @@ MethodTableBuilder::SetupMethodTable2(
 
                     // This method is now duplicate
                     pMD->SetDuplicate();
-                    INDEBUG(g_dupMethods++;)
+                    //INDEBUG(g_dupMethods++;)
+                    g_dupMethods++;
                     fChangeMade = TRUE;
                 }
             }

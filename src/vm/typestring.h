@@ -201,9 +201,9 @@ public:
       FormatAssembly      = 0x00000004, // Include assembly display name in type names
       FormatSignature     = 0x00000008, // Include signature in method names
       FormatNoVersion     = 0x00000010, // Suppress version and culture information in all assembly names
-#ifdef _DEBUG
+//#ifdef _DEBUG
       FormatDebug         = 0x00000020, // For debug printing of types only
-#endif
+//#endif
       FormatAngleBrackets = 0x00000040, // Whether generic types are C<T> or C[T]
       FormatStubInfo      = 0x00000080, // Include stub info like {unbox-stub}
       FormatGenericParam  = 0x00000100, // Use !name and !!name for generic type and method parameters
@@ -240,13 +240,13 @@ public:
 
     // Append the field name and generic instantiation info.
     static void AppendField(SString& s, FieldDesc *pFD, Instantiation typeInstantiation, const DWORD format = FormatNamespace);
-#ifdef _DEBUG
+//#ifdef _DEBUG
     // These versions are NOTHROWS. They are meant for diagnostic purposes only
     // as they may leave "s" in a bad state if there are any problems/exceptions.
     static void AppendMethodDebug(SString& s, MethodDesc *pMD);
     static void AppendTypeDebug(SString& s, TypeHandle t);  
     static void AppendTypeKeyDebug(SString& s, TypeKey* pTypeKey);
-#endif
+//#endif
 
 private:
     friend class TypeLibExporter;

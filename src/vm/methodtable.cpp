@@ -85,9 +85,9 @@ MethodDataCache *MethodTable::s_pMethodDataCache = NULL;
 BOOL MethodTable::s_fUseMethodDataCache = FALSE;
 BOOL MethodTable::s_fUseParentMethodData = FALSE;
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 extern unsigned g_dupMethods;
-#endif
+//#endif
 
 #endif // !DACCESS_COMPILE
 
@@ -944,10 +944,10 @@ MethodTable* CreateMinimalMethodTable(Module* pContainingModule,
     pMT->SetInternalCorElementType(ELEMENT_TYPE_CLASS);
     pMT->SetBaseSize(ObjSizeOf(Object));
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     pClass->SetDebugClassName("dynamicClass");
     pMT->SetDebugClassName("dynamicClass");
-#endif
+//#endif
 
     LOG((LF_BCL, LL_INFO10, "Level1 - MethodTable created {0x%p}\n", pClass));
     
@@ -1850,7 +1850,7 @@ BOOL MethodTable::CanShareVtableChunksFrom(MethodTable *pTargetMT, Module *pCurr
 
 #endif
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 
 void 
 MethodTable::DebugDumpVtable(LPCUTF8 szClassName, BOOL fDebug)
@@ -1876,9 +1876,9 @@ MethodTable::DebugDumpVtable(LPCUTF8 szClassName, BOOL fDebug)
     if (fDebug)
     {
         swprintf_s(buff, cchBuff, W("Vtable (with interface dupes) for '%S':\n"), szClassName);
-#ifdef _DEBUG
+//#ifdef _DEBUG
         swprintf_s(&buff[wcslen(buff)], cchBuff - wcslen(buff) , W("  Total duplicate slots = %d\n"), g_dupMethods);
-#endif
+//#endif
         WszOutputDebugString(buff);
     }
     else
@@ -2045,7 +2045,7 @@ MethodTable::Debug_DumpDispatchMap()
     LOG((LF_ALWAYS, LL_ALWAYS, "  <-- Dispatch map ends here\n"));
 } // MethodTable::Debug_DumpDispatchMap
 
-#endif //_DEBUG
+//#endif //_DEBUG
 
 //==========================================================================================
 NOINLINE BOOL MethodTable::ImplementsInterface(MethodTable *pInterface)
@@ -2694,10 +2694,10 @@ bool MethodTable::ClassifyEightBytesWithNativeLayout(SystemVStructRegisterPassin
 
         SystemVClassificationType fieldClassificationType = SystemVClassificationTypeUnknown;
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
         LPCUTF8 fieldName;
         pField->GetName_NoThrow(&fieldName);
-#endif // _DEBUG
+//#endif // _DEBUG
 
         // Some NStruct Field Types have extra information and require special handling
         NStructFieldType cls = pFieldMarshaler->GetNStructFieldType();
@@ -3523,9 +3523,9 @@ void MethodTable::DoRunClassInitThrowing()
     }
 
     description = ".cctor lock";
-#ifdef _DEBUG
+//#ifdef _DEBUG
     description = GetDebugClassName();
-#endif
+//#endif
 
     // Take the lock
     {
@@ -4275,12 +4275,12 @@ void MethodTable::Save(DataImage *image, DWORD profilingFlags)
 #endif // FEATURE_COMINTEROP
 
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     if (GetDebugClassName() != NULL && !image->IsStored(GetDebugClassName()))
         image->StoreStructure(debug_m_szClassName, (ULONG)(strlen(GetDebugClassName())+1),
                               DataImage::ITEM_DEBUG,
                               1);
-#endif // _DEBUG
+//#endif // _DEBUG
 
     DataImage::ItemKind kindBasic    = DataImage::ITEM_METHOD_TABLE;
     if (IsWriteable())
@@ -4807,9 +4807,9 @@ void MethodTable::Fixup(DataImage *image)
 
     image->FixupField(this, offsetof(MethodTable, m_pLoaderModule), pZapModule, 0, IMAGE_REL_BASED_RELPTR);
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     image->FixupPointerField(this, offsetof(MethodTable, debug_m_szClassName));
-#endif // _DEBUG
+//#endif // _DEBUG
 
     MethodTable * pParentMT = GetParentMethodTable();
     _ASSERTE(!pNewMT->IsParentMethodTableIndirectPointerMaybeNull());
@@ -5944,14 +5944,14 @@ void MethodTable::DoFullyLoad(Generics::RecursionGraph * const pVisited,  const 
     }
 
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     if (LoggingOn(LF_CLASSLOADER, LL_INFO10000))
     {
         SString name;
         TypeString::AppendTypeDebug(name, this);
         LOG((LF_CLASSLOADER, LL_INFO10000, "PHASEDLOAD: Completed full dependency load of type %S\n", name.GetUnicode()));
     }
-#endif
+//#endif
 
     switch (level)
     {
@@ -8185,7 +8185,7 @@ ClassCtorInfoEntry* MethodTable::GetClassCtorInfoIfExists()
     return NULL;
 }
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 //==========================================================================================
 // Returns true if pointer to the parent method table has been initialized/restored already.
 BOOL MethodTable::IsParentMethodTablePointerValid()
@@ -8200,7 +8200,7 @@ BOOL MethodTable::IsParentMethodTablePointerValid()
 
     return !IsParentMethodTableTagged(dac_cast<PTR_MethodTable>(this));
 }
-#endif
+//#endif
 
 
 //---------------------------------------------------------------------------------------

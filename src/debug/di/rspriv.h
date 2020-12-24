@@ -1165,13 +1165,13 @@ public:
     // to/from tokens and/or (void*).
     UINT_PTR    m_id;
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     static LONG m_saDwInstance[enumMaxDerived]; // instance x this
     static LONG m_saDwAlive[enumMaxDerived];
     static PVOID m_sdThis[enumMaxDerived][enumMaxThis];
     DWORD m_dwInstance;
     enumCordbDerived m_type;
-#endif
+//#endif
 
 
 
@@ -1222,12 +1222,12 @@ public:
     void init(UINT_PTR id, enumCordbDerived type)
     {
         // To help us track object leaks, we want to log when we create & destory CordbBase objects.
-#ifdef _DEBUG
+// #ifdef _DEBUG
         InterlockedIncrement(&s_TotalObjectCount);
         InterlockedIncrement(&s_CordbObjectUID);
 
         LOG((LF_CORDB, LL_EVERYTHING, "Memory: CordbBase object allocated: this=%p, count=%d, id=%p, Type=%d\n", this, s_CordbObjectUID, id, type));
-#endif
+// #endif
 
         m_signature = CORDB_COMMON_BASE_SIGNATURE;
         m_fNeuterAtWill = 0;
@@ -1265,14 +1265,15 @@ public:
         // To help us track object leaks, we want to log when we create & destory CordbBase objects.
         LOG((LF_CORDB, LL_EVERYTHING, "Memory: CordbBase object deleted: this=%p, id=%p, Refcount=0x%x\n", this, m_id, m_RefCount));
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
         LONG newTotalObjectsCount = InterlockedDecrement(&s_TotalObjectCount);
         _ASSERTE(newTotalObjectsCount >= 0);
-#endif
+//#endif
 
         // Don't shutdown logic until everybody is done with it.
         // If we leak objects, this may mean that we never shutdown logging at all!
-#if defined(_DEBUG) && defined(LOGGING)
+//#if defined(_DEBUG) && defined(LOGGING)
+#ifdef LOGGING
         if (newTotalObjectsCount == 0)
         {
             ShutdownLogging();

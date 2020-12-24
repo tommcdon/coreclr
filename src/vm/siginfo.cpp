@@ -5037,9 +5037,9 @@ VOID MetaSig::GcScanRoots(ArgDestination *pValue,
 
     _ASSERTE(etype >= 0 && etype < ELEMENT_TYPE_MAX);
     
-#ifdef _DEBUG
+//#ifdef _DEBUG
     PTR_Object pOldLocation;
-#endif
+//#endif
 
     switch (gElementTypeInfo[etype].m_gc)
     {
@@ -5051,9 +5051,9 @@ VOID MetaSig::GcScanRoots(ArgDestination *pValue,
             LOG((LF_GC, INFO3,
                  "        Argument at" FMT_ADDR "causes promotion of " FMT_OBJECT "\n",
                  DBG_ADDR(pArgPtr), DBG_ADDR(*pArgPtr) ));
-#ifdef _DEBUG
+//#ifdef _DEBUG
             pOldLocation = *pArgPtr;
-#endif
+//#endif
             (*fn)(pArgPtr, sc, GC_CALL_CHECK_APP_DOMAIN );
 
             // !!! Do not cast to (OBJECTREF*)
@@ -5078,9 +5078,9 @@ VOID MetaSig::GcScanRoots(ArgDestination *pValue,
                  "        Argument at" FMT_ADDR "causes promotion of interior pointer" FMT_ADDR "\n",
                  DBG_ADDR(pArgPtr), DBG_ADDR(*pArgPtr) ));
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
             pOldLocation = *pArgPtr;
-#endif
+//#endif
 
             (*fnc)(fn, pArgPtr, sc, GC_CALL_INTERIOR|GC_CALL_CHECK_APP_DOMAIN);
 

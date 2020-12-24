@@ -79,12 +79,12 @@ class FieldDesc
     };
 #endif
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     struct {
         unsigned m_isDangerousAppDomainAgileField : 1;
     };
     LPUTF8 m_debugName;
-#endif
+//#endif
 
 public:
     // Allocated by special heap means, don't construct me
@@ -105,21 +105,21 @@ public:
         m_dwOffset = sourceField.m_dwOffset;
         m_type = sourceField.m_type;
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
         m_isDangerousAppDomainAgileField = sourceField.m_isDangerousAppDomainAgileField;
 
         m_debugName = sourceField.m_debugName;
-#endif // _DEBUG
+//#endif // _DEBUG
     }
 #endif // !DACCESS_COMPILE
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     inline LPUTF8 GetDebugName()
     {
         LIMITED_METHOD_CONTRACT;
         return m_debugName;
     }
-#endif // _DEBUG
+//#endif // _DEBUG
     
 #ifndef DACCESS_COMPILE
     // This should be called.  It was added so that Reflection
@@ -313,7 +313,7 @@ public:
             );
     }
 
-#if defined(_DEBUG)
+//#if defined(_DEBUG)
     BOOL   IsDangerousAppDomainAgileField()
     {
         LIMITED_METHOD_CONTRACT;
@@ -327,7 +327,7 @@ public:
 
         m_isDangerousAppDomainAgileField = TRUE;
     }
-#endif
+//#endif
 
     BOOL   IsRVA() const               // Has an explicit RVA associated with it
     { 

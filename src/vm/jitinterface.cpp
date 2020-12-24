@@ -3530,11 +3530,11 @@ const char* CEEInfo::getHelperName (CorInfoHelpFunc ftnNum)
 #ifdef CROSSGEN_COMPILE
     result = hlpNameTable[ftnNum];
 #else
-#ifdef _DEBUG
+//#ifdef _DEBUG
     result = hlpFuncTable[ftnNum].name;
-#else
-    result = "AnyJITHelper";
-#endif
+//#else
+//     result = "AnyJITHelper";
+// #endif
 #endif
 
     EE_TO_JIT_TRANSITION_LEAF();
@@ -12622,7 +12622,7 @@ PCODE UnsafeJitFunction(MethodDesc* ftn, COR_ILMETHOD_DECODER* ILHeader, CORJIT_
     }
 #endif // CROSSGEN_COMPILE
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     // This is here so we can see the name and class easily in the debugger
 
     LPCUTF8 cls  = ftn->GetMethodTable()->GetDebugClassName();
@@ -12658,7 +12658,7 @@ PCODE UnsafeJitFunction(MethodDesc* ftn, COR_ILMETHOD_DECODER* ILHeader, CORJIT_
             DebugBreak();
     }
 #endif // 0
-#endif // _DEBUG
+//#endif // _DEBUG
 
     CORINFO_METHOD_HANDLE ftnHnd = (CORINFO_METHOD_HANDLE)ftn;
     CORINFO_METHOD_INFO methodInfo;
@@ -12677,7 +12677,7 @@ PCODE UnsafeJitFunction(MethodDesc* ftn, COR_ILMETHOD_DECODER* ILHeader, CORJIT_
 
     flags = GetCompileFlags(ftn, flags, &methodInfo);
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     if (!flags.IsSet(CORJIT_FLAGS::CORJIT_FLAG_SKIP_VERIFICATION))
     {
         SString methodString;
@@ -12686,7 +12686,7 @@ PCODE UnsafeJitFunction(MethodDesc* ftn, COR_ILMETHOD_DECODER* ILHeader, CORJIT_
 
         LOG((LF_VERIFIER, LL_INFO100, "{ Will verify method (%p) %S %s\n", ftn, methodString.GetUnicode(), ftn->m_pszDebugMethodSignature));
     }
-#endif //_DEBUG
+//#endif //_DEBUG
 
 #if defined(_TARGET_AMD64_) || defined(_TARGET_ARM64_)
     BOOL fForceJumpStubOverflow = FALSE;
@@ -12901,16 +12901,16 @@ PCODE UnsafeJitFunction(MethodDesc* ftn, COR_ILMETHOD_DECODER* ILHeader, CORJIT_
 
 #if defined(FEATURE_CORESYSTEM)
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
         LPCUTF8 pszDebugClassName = ftn->m_pszDebugClassName;
         LPCUTF8 pszDebugMethodName = ftn->m_pszDebugMethodName;
         LPCUTF8 pszDebugMethodSignature = ftn->m_pszDebugMethodSignature;
-#else
-        LPCUTF8 pszNamespace;
-        LPCUTF8 pszDebugClassName = ftn->GetMethodTable()->GetFullyQualifiedNameInfo(&pszNamespace);
-        LPCUTF8 pszDebugMethodName = ftn->GetName();
-        LPCUTF8 pszDebugMethodSignature = "";
-#endif
+// #else
+//         LPCUTF8 pszNamespace;
+//         LPCUTF8 pszDebugClassName = ftn->GetMethodTable()->GetFullyQualifiedNameInfo(&pszNamespace);
+//         LPCUTF8 pszDebugMethodName = ftn->GetName();
+//         LPCUTF8 pszDebugMethodSignature = "";
+// #endif
 
         //DbgPrintf("Jitted Entry at" FMT_ADDR "method %s::%s %s size %08x\n", DBG_ADDR(nativeEntry),
         //          pszDebugClassName, pszDebugMethodName, pszDebugMethodSignature, sizeOfCode);

@@ -306,9 +306,9 @@ struct RemotingVtsInfo
     };
 
     FixupPointer<PTR_MethodDesc> m_pCallbacks[VTS_NUM_CALLBACK_TYPES];
-#ifdef _DEBUG
+//#ifdef _DEBUG
     DWORD               m_dwNumFields;
-#endif
+//#endif
     DWORD               m_rFieldTypes[1];
 
     static DWORD GetSize(DWORD dwNumFields)
@@ -424,10 +424,10 @@ struct MethodTableWriteableData
 
 #endif // FEATURE_PREJIT
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
         enum_flag_ParentMethodTablePointerValid =  0x40000000,
         enum_flag_HasInjectedInterfaceDuplicates = 0x80000000,
-#endif
+//#endif
     };
     DWORD      m_dwFlags;                  // Lot of empty bits here.
 
@@ -437,7 +437,7 @@ struct MethodTableWriteableData
      */
     LOADERHANDLE m_hExposedClassObject;
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     // to avoid verify same method table too many times when it's not changing, we cache the GC count
     // on which the method table is verified. When fast GC STRESS is turned on, we only verify the MT if 
     // current GC count is bigger than the number. Note most thing which will invalidate a MT will require a 
@@ -448,12 +448,12 @@ struct MethodTableWriteableData
     DWORD m_dwPadding;               // Just to keep the size a multiple of 8
 #endif
 
-#endif
+//#endif
 
     // Optional CrossModuleGenericsStaticsInfo may be here.
 
 public:
-#ifdef _DEBUG
+//#ifdef _DEBUG
     inline BOOL IsParentMethodTablePointerValid() const
     {
         LIMITED_METHOD_DAC_CONTRACT;
@@ -466,7 +466,7 @@ public:
 
         m_dwFlags |= enum_flag_ParentMethodTablePointerValid;
     }
-#endif
+//#endif
 
 #ifdef FEATURE_PREJIT
 
@@ -2265,9 +2265,9 @@ public:
         return GetParentMethodTable() == pMT;
     }
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     BOOL IsParentMethodTablePointerValid();
-#endif
+//#endif
 
 #ifndef DACCESS_COMPILE
     void SetParentMethodTable (MethodTable *pParentMethodTable)
@@ -2275,9 +2275,9 @@ public:
         LIMITED_METHOD_CONTRACT;
         PRECONDITION(!IsParentMethodTableIndirectPointerMaybeNull());
         m_pParentMethodTable.SetValueMaybeNull(pParentMethodTable);
-#ifdef _DEBUG
+//#ifdef _DEBUG
         GetWriteableDataForWrite_NoLogging()->SetParentMethodTablePointerValid();
-#endif
+//#endif
     }
 #endif // !DACCESS_COMPILE
     MethodTable * GetMethodTableMatchingParentClass(MethodTable * pWhichParent);
@@ -2831,7 +2831,7 @@ public:
     void UnBoxIntoUnchecked(void *dest, OBJECTREF src);
 #endif
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     // Used for debugging class layout. Dumps to the debug console
     // when debug is true.
     void DebugDumpVtable(LPCUTF8 szClassName, BOOL fDebug);
@@ -2840,7 +2840,7 @@ public:
     void DebugDumpFieldLayout(LPCUTF8 pszClassName, BOOL debug);
     void DebugRecursivelyDumpInstanceFields(LPCUTF8 pszClassName, BOOL debug);
     void DebugDumpGCDesc(LPCUTF8 pszClassName, BOOL debug);
-#endif //_DEBUG
+//#endif //_DEBUG
     
     inline BOOL IsAgileAndFinalizable()
     {
@@ -3394,7 +3394,7 @@ public :
     //
 
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     inline LPCUTF8 GetDebugClassName()
     {
         LIMITED_METHOD_CONTRACT;
@@ -3418,7 +3418,7 @@ public :
         LIMITED_METHOD_CONTRACT;
         GetWriteableDataForWrite()->m_dwFlags |= MethodTableWriteableData::enum_flag_HasInjectedInterfaceDuplicates;
     }
-#endif // _DEBUG
+//#endif // _DEBUG
 
 
 #ifndef DACCESS_COMPILE
@@ -4169,9 +4169,9 @@ private:
     WORD            m_wNumVirtuals;
     WORD            m_wNumInterfaces;
     
-#ifdef _DEBUG
+//#ifdef _DEBUG
     LPCUTF8         debug_m_szClassName;
-#endif //_DEBUG
+//#endif //_DEBUG
     
     // On Linux ARM is a RelativeFixupPointer. Otherwise,
     // Parent PTR_MethodTable if enum_flag_HasIndirectParent is not set. Pointer to indirection cell

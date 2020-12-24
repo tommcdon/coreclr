@@ -183,7 +183,7 @@ DbgRSThread * DbgRSThread::GetThread()
 
 
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 LONG CordbCommonBase::s_TotalObjectCount = 0;
 LONG CordbCommonBase::s_CordbObjectUID = 0;
 
@@ -192,7 +192,7 @@ LONG CordbCommonBase::m_saDwInstance[enumMaxDerived];
 LONG CordbCommonBase::m_saDwAlive[enumMaxDerived];
 PVOID CordbCommonBase::m_sdThis[enumMaxDerived][enumMaxThis];
 
-#endif
+//#endif
 
 #ifdef _DEBUG_IMPL
 // Mem tracking

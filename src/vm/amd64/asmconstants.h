@@ -202,26 +202,32 @@ ASMCONSTANTS_C_ASSERT(OFFSET__MethodTable__m_BaseSize
 ASMCONSTANTS_C_ASSERT(OFFSETOF__MethodTable__m_wNumInterfaces
                     == offsetof(MethodTable, m_wNumInterfaces));
 
-#define               OFFSETOF__MethodTable__m_pParentMethodTable   DBG_FRE(0x18, 0x10)
+//#define               OFFSETOF__MethodTable__m_pParentMethodTable   DBG_FRE(0x18, 0x10)
+#define               OFFSETOF__MethodTable__m_pParentMethodTable   0x18
 ASMCONSTANTS_C_ASSERT(OFFSETOF__MethodTable__m_pParentMethodTable
                     == offsetof(MethodTable, m_pParentMethodTable));
 
-#define               OFFSETOF__MethodTable__m_pWriteableData       DBG_FRE(0x28, 0x20)
+//#define               OFFSETOF__MethodTable__m_pWriteableData       DBG_FRE(0x28, 0x20)
+#define               OFFSETOF__MethodTable__m_pWriteableData       0x28
 ASMCONSTANTS_C_ASSERT(OFFSETOF__MethodTable__m_pWriteableData
                     == offsetof(MethodTable, m_pWriteableData));
 
-#define               OFFSETOF__MethodTable__m_pEEClass             DBG_FRE(0x30, 0x28)
+//#define               OFFSETOF__MethodTable__m_pEEClass             DBG_FRE(0x30, 0x28)
+#define               OFFSETOF__MethodTable__m_pEEClass             0x30
 ASMCONSTANTS_C_ASSERT(OFFSETOF__MethodTable__m_pEEClass
                     == offsetof(MethodTable, m_pEEClass));
 
-#define               METHODTABLE_OFFSET_VTABLE          DBG_FRE(0x48, 0x40)
+//#define               METHODTABLE_OFFSET_VTABLE          DBG_FRE(0x48, 0x40)
+#define               METHODTABLE_OFFSET_VTABLE          0x48
 ASMCONSTANTS_C_ASSERT(METHODTABLE_OFFSET_VTABLE == sizeof(MethodTable));
 
-#define               OFFSETOF__MethodTable__m_ElementType      DBG_FRE(0x38, 0x30)
+//#define               OFFSETOF__MethodTable__m_ElementType      DBG_FRE(0x38, 0x30)
+#define               OFFSETOF__MethodTable__m_ElementType      0x38
 ASMCONSTANTS_C_ASSERT(OFFSETOF__MethodTable__m_ElementType
                     == offsetof(MethodTable, m_pMultipurposeSlot1));
 
-#define               OFFSETOF__MethodTable__m_pInterfaceMap    DBG_FRE(0x40, 0x38)
+//#define               OFFSETOF__MethodTable__m_pInterfaceMap    DBG_FRE(0x40, 0x38)
+#define               OFFSETOF__MethodTable__m_pInterfaceMap    0x40
 ASMCONSTANTS_C_ASSERT(OFFSETOF__MethodTable__m_pInterfaceMap
                     == offsetof(MethodTable, m_pMultipurposeSlot2));
 

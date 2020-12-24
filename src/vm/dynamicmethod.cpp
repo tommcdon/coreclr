@@ -246,9 +246,9 @@ DynamicMethodDesc* DynamicMethodTable::GetDynamicMethod(BYTE *psig, DWORD sigSiz
             if (pNewMD)
             {
                 m_DynamicMethodList = pNewMD->GetLCGMethodResolver()->m_next;
-#ifdef _DEBUG 
+// #ifdef _DEBUG 
                 m_Used++;
-#endif
+// #endif
                 break;
             }
         }
@@ -302,9 +302,9 @@ void DynamicMethodTable::LinkMethod(DynamicMethodDesc *pMethod)
         LockHolder lh(this);
         pMethod->GetLCGMethodResolver()->m_next = m_DynamicMethodList;
         m_DynamicMethodList = pMethod;
-#ifdef _DEBUG 
+// #ifdef _DEBUG 
         m_Used--;
-#endif
+// #endif
     }
 
     RETURN;

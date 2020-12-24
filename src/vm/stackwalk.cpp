@@ -798,7 +798,7 @@ UINT_PTR Thread::VirtualUnwindToFirstManagedCallFrame(T_CONTEXT* pContext)
 #endif // !DACCESS_COMPILE
 #endif // WIN64EXCEPTIONS
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 void Thread::DebugLogStackWalkInfo(CrawlFrame* pCF, __in_z LPCSTR pszTag, UINT32 uFramesProcessed)
 {
     LIMITED_METHOD_CONTRACT;
@@ -854,15 +854,17 @@ void Thread::DebugLogStackWalkInfo(CrawlFrame* pCF, __in_z LPCSTR pszTag, UINT32
             DBG_ADDR((pCF->pFrame != FRAME_TOP) ? pCF->pFrame->GetVTablePtr() : NULL)));
     }
 }
-#endif // _DEBUG
+//#endif // _DEBUG
 
 StackWalkAction Thread::MakeStackwalkerCallback(
     CrawlFrame* pCF, 
     PSTACKWALKFRAMESCALLBACK pCallback, 
-    VOID* pData 
-    DEBUG_ARG(UINT32 uFramesProcessed))
+    VOID* pData,
+    //DEBUG_ARG(UINT32 uFramesProcessed))
+    UINT32 uFramesProcessed)
 {
-    INDEBUG(DebugLogStackWalkInfo(pCF, "CALLBACK", uFramesProcessed));
+    //INDEBUG(DebugLogStackWalkInfo(pCF, "CALLBACK", uFramesProcessed));
+    DebugLogStackWalkInfo(pCF, "CALLBACK", uFramesProcessed);
 
     // Since we may be asynchronously walking another thread's stack,
     // check (frequently) for stack-buffer-overrun corruptions
@@ -955,7 +957,8 @@ StackWalkAction Thread::StackWalkFramesEx(
         {
             while (iter.IsValid())
             {
-                retVal = MakeStackwalkerCallback(&iter.m_crawl, pCallback, pData DEBUG_ARG(iter.m_uFramesProcessed));
+                //retVal = MakeStackwalkerCallback(&iter.m_crawl, pCallback, pData DEBUG_ARG(iter.m_uFramesProcessed));
+                retVal = MakeStackwalkerCallback(&iter.m_crawl, pCallback, pData, iter.m_uFramesProcessed);
                 if (retVal == SWA_ABORT)
                 {
                     break;
@@ -1110,7 +1113,8 @@ void StackFrameIterator::CommonCtor(Thread * pThread, PTR_Frame pFrame, ULONG32 
     WRAPPER_NO_CONTRACT;
     SUPPORTS_DAC;
 
-    INDEBUG(m_uFramesProcessed = 0);
+    //INDEBUG(m_uFramesProcessed = 0);
+    m_uFramesProcessed = 0;
 
     m_frameState = SFITER_UNINITIALIZED;
     m_pThread    = pThread;
@@ -2276,7 +2280,8 @@ ProcessFuncletsForGCReporting:
         }
         else
         {
-            INDEBUG(m_crawl.pThread->DebugLogStackWalkInfo(&m_crawl, "FILTER  ", m_uFramesProcessed));
+            // INDEBUG(m_crawl.pThread->DebugLogStackWalkInfo(&m_crawl, "FILTER  ", m_uFramesProcessed));
+            m_crawl.pThread->DebugLogStackWalkInfo(&m_crawl, "FILTER  ", m_uFramesProcessed);
             retVal = NextRaw();
             if (retVal != SWA_CONTINUE)
             {
@@ -2310,7 +2315,8 @@ StackWalkAction StackFrameIterator::NextRaw(void)
 
     _ASSERTE(IsValid());
 
-    INDEBUG(m_uFramesProcessed++);
+    //INDEBUG(m_uFramesProcessed++);
+    m_uFramesProcessed++;
 
     StackWalkAction retVal = SWA_CONTINUE;
 
@@ -2993,7 +2999,8 @@ void StackFrameIterator::ProcessCurrentFrame(void)
         }
         else
         {
-            INDEBUG(m_crawl.pThread->DebugLogStackWalkInfo(&m_crawl, "CONSIDER", m_uFramesProcessed));
+            //INDEBUG(m_crawl.pThread->DebugLogStackWalkInfo(&m_crawl, "CONSIDER", m_uFramesProcessed));
+            m_crawl.pThread->DebugLogStackWalkInfo(&m_crawl, "CONSIDER", m_uFramesProcessed);
 
             _ASSERTE(m_crawl.pFrame != FRAME_TOP);
 
@@ -3108,7 +3115,8 @@ BOOL StackFrameIterator::CheckForSkippedFrames(void)
                 m_crawl.pFunc = m_crawl.pFrame->GetFunction();
             }
 
-            INDEBUG(m_crawl.pThread->DebugLogStackWalkInfo(&m_crawl, "CONSIDER", m_uFramesProcessed));
+            //INDEBUG(m_crawl.pThread->DebugLogStackWalkInfo(&m_crawl, "CONSIDER", m_uFramesProcessed));
+            m_crawl.pThread->DebugLogStackWalkInfo(&m_crawl, "CONSIDER", m_uFramesProcessed);
 
             m_frameState = SFITER_SKIPPED_FRAME_FUNCTION;
             return TRUE;
@@ -3156,7 +3164,8 @@ void StackFrameIterator::PreProcessingForManagedFrames(void)
         m_crawl.SetCurGSCookie(m_pCachedGSCookie);
     }
 
-    INDEBUG(m_crawl.pThread->DebugLogStackWalkInfo(&m_crawl, "CONSIDER", m_uFramesProcessed));
+    //INDEBUG(m_crawl.pThread->DebugLogStackWalkInfo(&m_crawl, "CONSIDER", m_uFramesProcessed));
+    m_crawl.pThread->DebugLogStackWalkInfo(&m_crawl, "CONSIDER", m_uFramesProcessed);
 
 #if defined(_DEBUG) && !defined(WIN64EXCEPTIONS) && !defined(DACCESS_COMPILE)
     //

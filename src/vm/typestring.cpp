@@ -1179,7 +1179,7 @@ void TypeString::AppendField(SString& s, FieldDesc *pFD, Instantiation typeInsta
     END_SO_INTOLERANT_CODE;
 }
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 void TypeString::AppendMethodDebug(SString& ss, MethodDesc *pMD)
 {
     CONTRACTL
@@ -1270,7 +1270,7 @@ void TypeString::AppendTypeKeyDebug(SString& ss, TypeKey *pTypeKey)
 #endif 
 }
 
-#endif // _DEBUG
+//#endif // _DEBUG
 
 
 void TypeString::AppendTypeKey(TypeNameBuilder& tnb, TypeKey *pTypeKey, DWORD format)

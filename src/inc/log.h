@@ -52,7 +52,6 @@ enum {
 
 #define LOG(x)
 #define LOG2(x)
-
 #define InitializeLogging()
 #define InitLogging()
 #define ShutdownLogging()

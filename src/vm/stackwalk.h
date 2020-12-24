@@ -615,10 +615,10 @@ public:
 
     CrawlFrame m_crawl;
 
-#if defined(_DEBUG)
+//#if defined(_DEBUG)
     // used in logging
     UINT32 m_uFramesProcessed;
-#endif // _DEBUG
+//#endif // _DEBUG
     
 private:
     // This is a helper for the two constructors.

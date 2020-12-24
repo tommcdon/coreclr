@@ -210,10 +210,10 @@ public:
 
 #endif
 
-#ifdef _DEBUG
+// #ifdef _DEBUG
 public:
     DWORD m_Used;
-#endif
+// #endif
 
 };  // class DynamicMethodTable
 

@@ -1294,13 +1294,13 @@ public:
     }
 #endif // FEATURE_COMINTEROP
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     inline DWORD IsDestroyed()
     {
         LIMITED_METHOD_CONTRACT;
         return (m_wAuxFlags & AUXFLAG_DESTROYED);
     }
-#endif
+//#endif
 
     inline DWORD IsUnsafeValueClass()
     {
@@ -1339,13 +1339,13 @@ public:
         LIMITED_METHOD_CONTRACT;
         m_VMFlags |= VMFLAG_PREFER_ALIGN8;
     }
-#ifdef _DEBUG
+//#ifdef _DEBUG
     inline void SetDestroyed()
     {
         LIMITED_METHOD_CONTRACT;
         m_wAuxFlags |= AUXFLAG_DESTROYED;
     }
-#endif
+//#endif
     inline void SetHasFixedAddressVTStatics()
     {
         LIMITED_METHOD_CONTRACT;

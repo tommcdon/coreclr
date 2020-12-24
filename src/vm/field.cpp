@@ -58,9 +58,9 @@ VOID FieldDesc::Init(mdFieldDef mb, CorElementType FieldType, DWORD dwMemberAttr
     m_isRVA = fIsRVA != 0;
     m_isThreadLocal = fIsThreadLocal != 0;
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     m_debugName = (LPUTF8)pszFieldName;
-#endif
+//#endif
 
     _ASSERTE(GetMemberDef() == mb);                 // no truncation
     _ASSERTE(GetFieldType() == FieldType);
@@ -771,9 +771,9 @@ void FieldDesc::Fixup(DataImage *image)
     LOG((LF_ZAP, LL_INFO10000, "FieldDesc::Fixup %s::%s\n", GetApproxEnclosingMethodTable()->GetDebugClassName(), m_debugName));
     image->FixupRelativePointerField(this, offsetof(FieldDesc, m_pMTOfEnclosingClass));
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     image->FixupPointerField(this, offsetof(FieldDesc, m_debugName));
-#endif
+//#endif
 
     // if (IsRVAFieldWithLessThanBigOffset())
     // {

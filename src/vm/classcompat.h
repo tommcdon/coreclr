@@ -272,9 +272,9 @@ private:
     BaseDomain *GetDomain() { LIMITED_METHOD_CONTRACT; return bmtDomain; } 
     ClassLoader *GetClassLoader() { WRAPPER_NO_CONTRACT; return GetModule()->GetClassLoader(); } 
     IMDInternalImport* GetMDImport()  { WRAPPER_NO_CONTRACT; return GetModule()->GetMDImport(); } 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     LPCUTF8 GetDebugClassName() { LIMITED_METHOD_CONTRACT; return bmtProp->szDebugClassName; } 
-#endif // _DEBUG
+//#endif // _DEBUG
      BOOL IsComImport() { WRAPPER_NO_CONTRACT; return IsTdImport(GetAttrClass()); } 
     BOOL IsComClassInterface() { LIMITED_METHOD_CONTRACT; return bmtProp->fIsComClassInterface; } 
 
@@ -290,9 +290,9 @@ private:
     void SetHasLayout() { LIMITED_METHOD_CONTRACT; bmtProp->fHasLayout = TRUE; }
     void SetIsDelegate() { LIMITED_METHOD_CONTRACT; bmtProp->fIsDelegate = TRUE; }
     void SetContextful() { LIMITED_METHOD_CONTRACT; bmtProp->fIsContextful = TRUE; }
-#ifdef _DEBUG
+//#ifdef _DEBUG
     void SetDebugClassName(LPUTF8 x) { LIMITED_METHOD_CONTRACT; bmtProp->szDebugClassName = x; }
-#endif
+//#endif
      void SetIsComClassInterface() { LIMITED_METHOD_CONTRACT; bmtProp->fIsComClassInterface = TRUE; }
 
     /************************************

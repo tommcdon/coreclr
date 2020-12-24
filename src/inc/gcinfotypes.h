@@ -71,14 +71,14 @@ enum GcStackSlotBase
     GC_SPBASE_LAST   = GC_FRAMEREG_REL,
 };
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 const char* const GcStackSlotBaseNames[] =
 {
     "caller.sp",
     "sp",
     "frame",
 };
-#endif
+//#endif
 
 enum GcSlotState
 {

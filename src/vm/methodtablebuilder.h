@@ -2622,10 +2622,13 @@ private:
         BOOL                fEnC,
         DWORD               RVA,          // Only needed for NDirect case
         IMDInternalImport * pIMDII,  // Needed for NDirect, EEImpl(Delegate) cases
-        LPCSTR              pMethodName // Only needed for mcEEImpl (Delegate) case
-        COMMA_INDEBUG(LPCUTF8             pszDebugMethodName)
-        COMMA_INDEBUG(LPCUTF8             pszDebugClassName)
-        COMMA_INDEBUG(LPCUTF8             pszDebugMethodSignature));
+        LPCSTR              pMethodName, // Only needed for mcEEImpl (Delegate) case
+        // COMMA_INDEBUG(LPCUTF8             pszDebugMethodName)
+        // COMMA_INDEBUG(LPCUTF8             pszDebugClassName)
+        // COMMA_INDEBUG(LPCUTF8             pszDebugMethodSignature));
+        LPCUTF8             pszDebugMethodName,
+        LPCUTF8             pszDebugClassName,
+        LPCUTF8             pszDebugMethodSignature);
 
     // --------------------------------------------------------------------------------------------
     // Convert code:MethodTableBuilder::METHOD_TYPE to code:MethodClassification

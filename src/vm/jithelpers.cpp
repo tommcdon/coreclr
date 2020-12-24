@@ -5753,11 +5753,11 @@ enum __CorInfoHelpFunc {
 #define JITHELPER(code, pfnHelper, sig) C_ASSERT((int)__##code == (int)code);
 #include "jithelpers.h"
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 #define HELPERDEF(code, lpv, sig) { (LPVOID)(lpv), #code },
-#else // !_DEBUG
-#define HELPERDEF(code, lpv, sig) { (LPVOID)(lpv) },
-#endif // !_DEBUG
+// #else // !_DEBUG
+// #define HELPERDEF(code, lpv, sig) { (LPVOID)(lpv) },
+// #endif // !_DEBUG
 
 // static helpers - constant array
 const VMHELPDEF hlpFuncTable[CORINFO_HELP_COUNT] =

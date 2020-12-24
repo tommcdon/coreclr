@@ -1546,9 +1546,9 @@ protected :
 
 typedef struct {
     void * pfnHelper;
-#ifdef _DEBUG
+//#ifdef _DEBUG
     const char* name;
-#endif
+//#endif
 } VMHELPDEF;
 
 #if defined(DACCESS_COMPILE)

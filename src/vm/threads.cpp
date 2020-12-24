@@ -7820,12 +7820,12 @@ void Thread::DoContextCallBack(ADID appDomain, Context *pContext, Context::ADCal
 {
     //Do not deference pContext if it's not from the current appdomain
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     TADDR espVal = (TADDR)GetCurrentSP();
 
     LOG((LF_APPDOMAIN, LL_INFO100, "Thread::DoADCallBack Calling %p at esp %p in [%d]\n",
             pTarget, espVal, appDomain.m_dwId));
-#endif
+//#endif
     _ASSERTE(GetThread()->GetContext() != pContext);
     Thread* pThread  = GetThread();
 
@@ -7860,12 +7860,12 @@ void Thread::DoADCallBack(AppDomain* pDomain , Context::ADCallBackFcnType pTarge
 {
 
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     TADDR espVal = (TADDR)GetCurrentSP();
 
     LOG((LF_APPDOMAIN, LL_INFO100, "Thread::DoADCallBack Calling %p at esp %p in [%d]\n",
             pTarget, espVal, pDomain->GetId().m_dwId));
-#endif
+//#endif
     Thread* pThread  = GetThread();
 
     // Get the default context for the current domain as well as for the
@@ -7934,12 +7934,12 @@ void Thread::DoADCallBack(ADID appDomainID , Context::ADCallBackFcnType pTarget,
 {
 
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     TADDR espVal = (TADDR)GetCurrentSP();
 
     LOG((LF_APPDOMAIN, LL_INFO100, "Thread::DoADCallBack Calling %p at esp %p in [%d]\n",
             pTarget, espVal, appDomainID.m_dwId));
-#endif
+//s#endif
     Thread* pThread  = GetThread();
 
     // Get the default context for the current domain as well as for the

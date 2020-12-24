@@ -30,7 +30,8 @@
 
 #define FEATURE_SHARE_GENERIC_CODE
 
-#if defined(_DEBUG) && !defined(DACCESS_COMPILE)
+//#if defined(_DEBUG) && !defined(DACCESS_COMPILE)
+#ifndef DACCESS_COMPILE
     #define LOGGING
 #endif
 

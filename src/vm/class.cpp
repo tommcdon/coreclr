@@ -617,8 +617,10 @@ HRESULT EEClass::AddMethod(MethodTable * pMT, mdMethodDef methodDef, RVA newRVA,
                                &dummyAmTracker);
     EX_TRY
     {
-        INDEBUG(LPCSTR debug_szFieldName);
-        INDEBUG(if (FAILED(pImport->GetNameOfMethodDef(methodDef, &debug_szFieldName))) { debug_szFieldName = "Invalid MethodDef record"; });
+        // INDEBUG(LPCSTR debug_szFieldName);
+        // INDEBUG(if (FAILED(pImport->GetNameOfMethodDef(methodDef, &debug_szFieldName))) { debug_szFieldName = "Invalid MethodDef record"; });
+        LPCSTR debug_szFieldName;
+        if (FAILED(pImport->GetNameOfMethodDef(methodDef, &debug_szFieldName))) { debug_szFieldName = "Invalid MethodDef record"; }
         builder.InitMethodDesc(pNewMD, 
                                mcInstantiated,  // Use instantiated methoddesc for EnC added methods to get space for slot
                                methodDef,
@@ -627,10 +629,13 @@ HRESULT EEClass::AddMethod(MethodTable * pMT, mdMethodDef methodDef, RVA newRVA,
                                TRUE,            // fEnC
                                newRVA,
                                pImport,
+                               NULL,
+                            //    COMMA_INDEBUG(debug_szFieldName)
+                            //    COMMA_INDEBUG(pMT->GetDebugClassName())
+                            //    COMMA_INDEBUG(NULL)
+                               debug_szFieldName,
+                               pMT->GetDebugClassName(),
                                NULL
-                               COMMA_INDEBUG(debug_szFieldName)
-                               COMMA_INDEBUG(pMT->GetDebugClassName())
-                               COMMA_INDEBUG(NULL)
                               );
         
         pNewMD->SetTemporaryEntryPoint(pAllocator, &dummyAmTracker);

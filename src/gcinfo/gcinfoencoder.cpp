@@ -456,14 +456,14 @@ GcInfoEncoder::GcInfoEncoder(
     m_pAllocator = pJitAllocator;
     m_pNoMem = pNoMem;
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     CORINFO_METHOD_HANDLE methodHandle = pMethodInfo->ftn;
 
     // Get the name of the current method along with the enclosing class
     // or module name.
     m_MethodName =
         pCorJitInfo->getMethodName(methodHandle, (const char **)&m_ModuleName);
-#endif
+//#endif
 
 
     m_SlotTableSize = m_SlotTableInitialSize;

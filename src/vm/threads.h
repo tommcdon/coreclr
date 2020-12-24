@@ -3369,11 +3369,12 @@ public:
 
 private:
     // private helpers used by StackWalkFramesEx and StackFrameIterator
-    StackWalkAction MakeStackwalkerCallback(CrawlFrame* pCF, PSTACKWALKFRAMESCALLBACK pCallback, VOID* pData DEBUG_ARG(UINT32 uLoopIteration));
+    // StackWalkAction MakeStackwalkerCallback(CrawlFrame* pCF, PSTACKWALKFRAMESCALLBACK pCallback, VOID* pData DEBUG_ARG(UINT32 uLoopIteration));
+    StackWalkAction MakeStackwalkerCallback(CrawlFrame* pCF, PSTACKWALKFRAMESCALLBACK pCallback, VOID* pData, UINT32 uLoopIteration);
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     void            DebugLogStackWalkInfo(CrawlFrame* pCF, __in_z LPCSTR pszTag, UINT32 uLoopIteration);
-#endif // _DEBUG
+//#endif // _DEBUG
 
 public:
 
