@@ -498,7 +498,7 @@ void CordbCommonBase::InitializeCommon()
 #endif // STRESS_LOG
 
 #ifdef LOGGING
-    InitializeLogging();
+    InitializeLogging(true);
 #endif
 
     // Add debug privilege. This will let us call OpenProcess() on anything, regardless of ACL.

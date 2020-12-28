@@ -53,7 +53,7 @@ enum {
 #define LOG(x)
 #define LOG2(x)
 #define InitializeLogging()
-#define InitLogging()
+#define InitLogging(isDebug)
 #define ShutdownLogging()
 #define FlushLogging()
 #define LoggingOn(facility, level) 0
@@ -63,8 +63,8 @@ enum {
 
 #else
 
-extern VOID InitializeLogging();
-extern VOID InitLogging();
+extern VOID InitializeLogging(bool isDebug = false);
+extern VOID InitLogging(bool isDebug);
 extern VOID ShutdownLogging();
 extern VOID FlushLogging();
 

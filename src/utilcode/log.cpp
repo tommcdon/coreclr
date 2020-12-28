@@ -26,7 +26,8 @@
 
 #ifdef LOGGING
 
-#define DEFAULT_LOGFILE_NAME    W("C:\\Data\\tmp\\COMPLUS.LOG")
+#define DEFAULT_LOGFILE_NAME    W("C:\\Data\\tmp\\COMPLUS_%ld.LOG")
+#define DEFAULT_LOGFILE_NAME_DBG    W("C:\\Data\\tmp\\COMPLUS_DBI_%ld.LOG")
 
 #define LOG_ENABLE_FILE_LOGGING         0x0001
 #define LOG_ENABLE_FLUSH_FILE           0x0002
@@ -46,7 +47,7 @@ static DWORD    LogVMLevel                  = LL_EVERYTHING;//LL_INFO100;
         // <TODO>@todo FIX should probably only display warnings and above by default</TODO>
 
 
-VOID InitLogging()
+VOID InitLogging(bool isDebug)
 {
     STATIC_CONTRACT_NOTHROW;
     
@@ -67,7 +68,9 @@ VOID InitLogging()
 
     if (SUCCEEDED(szLogFileName.ReSizeNoThrow(MAX_LONGPATH)))
     {
-        wcscpy_s(szLogFileName.Ptr(), szLogFileName.Size(), DEFAULT_LOGFILE_NAME);
+
+        wsprintf(szLogFileName.Ptr(), isDebug ? DEFAULT_LOGFILE_NAME_DBG : DEFAULT_LOGFILE_NAME, GetCurrentProcessId());
+        //wcscpy_s(szLogFileName.Ptr(), szLogFileName.Size(), DEFAULT_LOGFILE_NAME);
     }
 
     //LPWSTR fileName = CLRConfig::GetConfigValue(CLRConfig::INTERNAL_LogFile);
@@ -194,7 +197,7 @@ VOID LeaveLogLock()
 }
 
 static bool bLoggingInitialized = false;
-VOID InitializeLogging()
+VOID InitializeLogging(bool isDebug)
 {
     STATIC_CONTRACT_NOTHROW;
 
@@ -202,7 +205,7 @@ VOID InitializeLogging()
         return;
     bLoggingInitialized = true;
 
-    InitLogging();      // You can call this in the debugger to fetch new settings
+    InitLogging(isDebug);      // You can call this in the debugger to fetch new settings
 }
 
 VOID FlushLogging() {
