@@ -31,7 +31,8 @@
 #define FEATURE_SHARE_GENERIC_CODE
 
 //#if defined(_DEBUG) && !defined(DACCESS_COMPILE)
-#ifndef DACCESS_COMPILE
+//#ifndef DACCESS_COMPILE
+#if !defined(DACCESS_COMPILE) && !defined(FEATURE_NATIVE_IMAGE_GENERATION)
     #define LOGGING
 #endif
 
