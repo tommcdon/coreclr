@@ -4994,12 +4994,12 @@ bool EECodeManager::EnumGcRefs( PREGDISPLAY     pRD,
     curOffs &= (~THUMB_CODE);
 #endif // _TARGET_ARM_
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     // Get the name of the current method 
     const char * methodName = pCodeInfo->GetMethodDesc()->GetName();
     LOG((LF_GCINFO, LL_INFO1000, "Reporting GC refs for %s at offset %04x.\n", 
         methodName, curOffs));
-#endif
+//#endif
 
     GCInfoToken gcInfoToken = pCodeInfo->GetGCInfoToken();
 

@@ -2221,7 +2221,8 @@ BOOL MethodTable::IsClassPreInited()
 
 #if defined(FEATURE_UNIX_AMD64_STRUCT_PASSING_ITF)
 
-#if defined(_DEBUG) && defined(LOGGING)
+//#if defined(_DEBUG) && defined(LOGGING)
+#ifdef LOGGING
 static
 const char* GetSystemVClassificationTypeName(SystemVClassificationType t)
 {
@@ -2355,11 +2356,11 @@ bool MethodTable::ClassifyEightBytesWithManagedLayout(SystemVStructRegisterPassi
         }
     }
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     LOG((LF_JIT, LL_EVERYTHING, "%*s**** Classify %s (%p), startOffset %d, total struct size %d\n",
         nestingLevel * 5, "", this->GetDebugClassName(), this, startOffsetOfStruct, helperPtr->structSize));
     int fieldNum = -1;
-#endif // _DEBUG
+//#endif // _DEBUG
 
     FieldDesc *pField = GetApproxFieldDescListRaw();
     FieldDesc *pFieldEnd = pField + numIntroducedFields;
@@ -2372,9 +2373,9 @@ bool MethodTable::ClassifyEightBytesWithManagedLayout(SystemVStructRegisterPassi
 
     for (; pField < pFieldEnd; pField++)
     {
-#ifdef _DEBUG
+//#ifdef _DEBUG
         ++fieldNum;
-#endif // _DEBUG
+//#endif // _DEBUG
 
         DWORD fieldOffset = pField->GetOffset();
         unsigned normalizedFieldOffset = fieldOffset + startOffsetOfStruct;
@@ -2405,10 +2406,10 @@ bool MethodTable::ClassifyEightBytesWithManagedLayout(SystemVStructRegisterPassi
             fieldClassificationType = CorInfoType2UnixAmd64Classification(fieldType);
         }
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
         LPCUTF8 fieldName;
         pField->GetName_NoThrow(&fieldName);
-#endif // _DEBUG
+//#endif // _DEBUG
         if (fieldClassificationType == SystemVClassificationTypeStruct)
         {
             TypeHandle th = pField->GetApproxFieldTypeHandleThrowing();
@@ -2489,9 +2490,9 @@ bool MethodTable::ClassifyEightBytesWithManagedLayout(SystemVStructRegisterPassi
                     GetSystemVClassificationTypeName(helperPtr->fieldClassifications[helperPtr->currentUniqueOffsetField])));
 
                 helperPtr->currentUniqueOffsetField++;
-#ifdef _DEBUG
+//#ifdef _DEBUG
                 ++fieldNum;
-#endif // _DEBUG
+//#endif // _DEBUG
             }
 
             // Both fields of the special TypedReference struct are handled.
@@ -2652,17 +2653,17 @@ bool MethodTable::ClassifyEightBytesWithNativeLayout(SystemVStructRegisterPassin
         }
     }
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     LOG((LF_JIT, LL_EVERYTHING, "%*s**** Classify for native struct %s (%p), startOffset %d, total struct size %d\n",
         nestingLevel * 5, "", this->GetDebugClassName(), this, startOffsetOfStruct, helperPtr->structSize));
     int fieldNum = -1;
-#endif // _DEBUG
+//#endif // _DEBUG
 
     while (numIntroducedFields--)
     {
-#ifdef _DEBUG
+//#ifdef _DEBUG
         ++fieldNum;
-#endif // _DEBUG
+//#endif // _DEBUG
 
         FieldDesc *pField = pFieldMarshaler->GetFieldDesc();
         CorElementType fieldType = pField->GetFieldType();
@@ -3522,7 +3523,7 @@ void MethodTable::DoRunClassInitThrowing()
             );
     }
 
-    description = ".cctor lock";
+    //description = ".cctor lock";
 //#ifdef _DEBUG
     description = GetDebugClassName();
 //#endif
