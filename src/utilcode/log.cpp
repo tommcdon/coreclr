@@ -41,7 +41,7 @@ static DWORD    LogFlags                    = LOG_ENABLE| LOG_ENABLE_FILE_LOGGIN
 static CQuickWSTR     szLogFileName;
 static HANDLE   LogFileHandle               = INVALID_HANDLE_VALUE;
 static MUTEX_COOKIE   LogFileMutex                = 0;
-static DWORD    LogFacilityMask             = LF_ALL;
+static DWORD    LogFacilityMask             = (LF_ALL & (~LF_METADATA));
 static DWORD    LogFacilityMask2            = LF_ALWAYS;//0;
 static DWORD    LogVMLevel                  = LL_EVERYTHING;//LL_INFO100;
         // <TODO>@todo FIX should probably only display warnings and above by default</TODO>
