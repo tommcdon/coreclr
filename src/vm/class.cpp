@@ -2989,12 +2989,12 @@ void EEClass::Save(DataImage *image, MethodTable *pMT)
                               sizeof(EEClassOptionalFields),
                               item);
 
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
     if (!image->IsStored(m_szDebugClassName))
         image->StoreStructure(m_szDebugClassName, (ULONG)(strlen(m_szDebugClassName)+1),
                               DataImage::ITEM_DEBUG,
                               1);
-#endif // _DEBUG
+//#endif // _DEBUG
 
 #ifdef FEATURE_COMINTEROP 
     if (GetSparseCOMInteropVTableMap() != NULL)
@@ -3192,9 +3192,9 @@ void EEClass::Fixup(DataImage *image, MethodTable *pMT)
     if (HasOptionalFields())
         image->FixupRelativePointerField(this, offsetof(EEClass, m_rpOptionalFields));
 
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
     image->FixupPointerField(this, offsetof(EEClass, m_szDebugClassName));
-#endif
+//#endif
 
 #ifdef FEATURE_COMINTEROP 
     if (GetSparseCOMInteropVTableMap() != NULL)

@@ -561,7 +561,7 @@ MethodTable* Module::CreateArrayMethodTable(TypeHandle elemTypeHnd, CorElementTy
             pMT->SetNonVirtualSlotsArray((PTR_PCODE)(pMemory+cbArrayClass+offsetOfNonVirtualSlots));
     }
 
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
     StackSString debugName;
     TypeString::AppendType(debugName, TypeHandle(pMT));
     StackScratchBuffer buff;
@@ -577,7 +577,7 @@ MethodTable* Module::CreateArrayMethodTable(TypeHandle elemTypeHnd, CorElementTy
     if (pClass != NULL)
         pClass->SetDebugClassName(name);
     pMT->SetDebugClassName(name);
-#endif // _DEBUG
+//#endif // _DEBUG
 
     if (pClass != NULL)
     {

@@ -564,7 +564,7 @@ ClassLoader::CreateTypeHandleForNonCanonicalGenericInstantiation(
     pMT->SetLoaderAllocator(pAllocator);
     
     
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
     // Name for debugging
     StackSString debug_ClassNameString;
     TypeString::AppendTypeKey(debug_ClassNameString, pTypeKey, TypeString::FormatNamespace | TypeString::FormatAngleBrackets | TypeString::FormatFullInst);
@@ -581,7 +581,7 @@ ClassLoader::CreateTypeHandleForNonCanonicalGenericInstantiation(
     // Debugging information
     if (pOldMT->Debug_HasInjectedInterfaceDuplicates())
         pMT->Debug_SetHasInjectedInterfaceDuplicates();
-#endif // _DEBUG
+//#endif // _DEBUG
     
     // <NICE>This logic is identical to logic in class.cpp.  Factor these out.</NICE>
     // No need to generate IDs for open types.   However

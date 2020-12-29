@@ -1893,9 +1893,9 @@ MethodTableBuilder::BuildMethodTableThrowing(
     }
 #endif
 
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
     pMT->SetDebugClassName(GetDebugClassName());
-#endif
+//#endif
 
 #ifdef FEATURE_COMINTEROP 
     if (IsInterface())
@@ -10169,9 +10169,9 @@ MethodTableBuilder::SetupMethodTable2(
     pClass->m_pMethodTable.SetValue(pMT);
     m_pHalfBakedMT = pMT;
 
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
     pMT->SetDebugClassName(GetDebugClassName());
-#endif
+//#endif
 
 #ifdef FEATURE_COMINTEROP
     if (fNeedsRCWPerTypeData)

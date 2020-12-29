@@ -260,9 +260,9 @@ private:
     void SetHasOverLayedFields() { WRAPPER_NO_CONTRACT; GetHalfBakedClass()->SetHasOverLayedFields(); } 
     void SetNonGCRegularStaticFieldBytes(DWORD x) { WRAPPER_NO_CONTRACT; GetHalfBakedClass()->SetNonGCRegularStaticFieldBytes(x); } 
     void SetNonGCThreadStaticFieldBytes(DWORD x) { WRAPPER_NO_CONTRACT; GetHalfBakedClass()->SetNonGCThreadStaticFieldBytes(x); } 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     void SetDebugClassName(LPUTF8 x) { WRAPPER_NO_CONTRACT; GetHalfBakedClass()->SetDebugClassName(x); } 
-#endif
+//#endif
 
     // Must be called prior to setting the value of any optional field on EEClass (on a debug build an assert
     // will fire if this invariant is violated).
