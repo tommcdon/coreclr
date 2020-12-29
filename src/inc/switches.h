@@ -32,7 +32,7 @@
 
 //#if defined(_DEBUG) && !defined(DACCESS_COMPILE)
 //#ifndef DACCESS_COMPILE
-#if !defined(DACCESS_COMPILE) && !defined(FEATURE_NATIVE_IMAGE_GENERATION)
+#if !defined(DACCESS_COMPILE) && !defined(FEATURE_NATIVE_IMAGE_GENERATION) && !defined(RIGHT_SIDE_COMPILE)
     #define LOGGING
 #endif
 

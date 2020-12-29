@@ -14,12 +14,9 @@
 #include "ex.h"
 #include "corexcep.h"
 
-#ifndef LOGGING
-//#ifdef _DEBUG
+#ifdef _DEBUG
 #define LOGGING
-//#endif
 #endif
-
 
 #include "log.h"
 
