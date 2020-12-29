@@ -402,7 +402,7 @@ InstantiatedMethodDesc::NewInstantiatedMethodDesc(MethodTable *pExactMT,
                         getWrappedCode);
                     if (pNewMD == NULL)
                         continue;
-#ifdef _DEBUG
+//#ifdef _DEBUG
 #ifndef DACCESS_COMPILE
                     if (LoggingOn(LF_CLASSLOADER, LL_INFO10000))
                     {
@@ -412,7 +412,7 @@ InstantiatedMethodDesc::NewInstantiatedMethodDesc(MethodTable *pExactMT,
                         LOG((LF_CLASSLOADER, LL_INFO10000, "Found method %S in non-preferred zap module %S\n", methodName.GetUnicode(), pModule->GetPath().GetUnicode()));
                     }
 #endif //!DACCESS_COMPILE
-#endif //_DEBUG
+//#endif //_DEBUG
                 }
             }
             else
@@ -448,14 +448,14 @@ InstantiatedMethodDesc::NewInstantiatedMethodDesc(MethodTable *pExactMT,
             {
                 // 4 seems like a good number
                 pDL = DictionaryLayout::Allocate(4, pAllocator, &amt);
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
                 {
                     SString name;
                     TypeString::AppendMethodDebug(name, pGenericMDescInRepMT);
                     LOG((LF_JIT, LL_INFO1000, "GENERICS: Created new dictionary layout for dictionary of size %d for %S\n",
                          DictionaryLayout::GetFirstDictionaryBucketSize(pGenericMDescInRepMT->GetNumGenericMethodArgs(), pDL), name.GetUnicode()));
                 }
-#endif // _DEBUG
+//#endif // _DEBUG
             }
 
             // Allocate space for the instantiation and dictionary
@@ -542,7 +542,7 @@ InstantiatedMethodDesc::NewInstantiatedMethodDesc(MethodTable *pExactMT,
                 // No one else got there first, our MethodDesc wins.
                 amt.SuppressRelease();
 
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
                 SString name(SString::Utf8);
                 TypeString::AppendMethodDebug(name, pNewMD);
                 StackScratchBuffer buff;
@@ -566,7 +566,7 @@ InstantiatedMethodDesc::NewInstantiatedMethodDesc(MethodTable *pExactMT,
                 strcpy_s((char *) pNewMD->m_pszDebugMethodName, len, pDebugNameUTF8);
                 pNewMD->m_pszDebugClassName = pExactMT->GetDebugClassName();
                 pNewMD->m_pszDebugMethodSignature = (LPUTF8)pNewMD->m_pszDebugMethodName;
-#endif // _DEBUG
+//#endif // _DEBUG
 
                 // Generic methods can't be varargs. code:MethodTableBuilder::ValidateMethods should have checked it.
                 _ASSERTE(!pNewMD->IsVarArg());

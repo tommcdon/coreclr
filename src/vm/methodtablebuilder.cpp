@@ -1970,7 +1970,7 @@ MethodTableBuilder::BuildMethodTableThrowing(
         pMT->SetParentMethodTable (g_pObjectClass);
     }
 
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
     // Reset the debug method names for BoxedEntryPointStubs
     // so they reflect the very best debug information for the methods
     {
@@ -2010,7 +2010,7 @@ MethodTableBuilder::BuildMethodTableThrowing(
             }
         }
     }
-#endif // _DEBUG
+//#endif // _DEBUG
 
 
     //If this is a value type, then propagate the UnsafeValueTypeAttribute from

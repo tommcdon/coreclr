@@ -2570,11 +2570,11 @@ void MethodDesc::Save(DataImage *image)
 
 //#ifdef _DEBUG
     SString s;
-    //if (LoggingOn(LF_ZAP, LL_INFO10000))
-    //{
-    //    TypeString::AppendMethodDebug(s, this);
-    //    LOG((LF_ZAP, LL_INFO10000, "  MethodDesc::Save %S (%p)\n", s.GetUnicode(), this));
-    //}
+    if (LoggingOn(LF_ZAP, LL_INFO10000))
+    {
+       TypeString::AppendMethodDebug(s, this);
+       LOG((LF_ZAP, LL_INFO10000, "  MethodDesc::Save %S (%p)\n", s.GetUnicode(), this));
+    }
 
     if (m_pszDebugMethodName && !image->IsStored((void*) m_pszDebugMethodName))
         image->StoreStructure((void *) m_pszDebugMethodName,
@@ -3257,14 +3257,14 @@ MethodDesc::Fixup(
 {
     STANDARD_VM_CONTRACT;
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     SString s;
     if (LoggingOn(LF_ZAP, LL_INFO10000))
     {
         TypeString::AppendMethodDebug(s, this);
         LOG((LF_ZAP, LL_INFO10000, "  MethodDesc::Fixup %S (%p)\n", s.GetUnicode(), this));
     }
-#endif // _DEBUG
+//#endif // _DEBUG
 
 #ifdef HAVE_GCCOVER
     image->ZeroPointerField(this, offsetof(MethodDesc, m_GcCover));

@@ -1137,10 +1137,10 @@ private:
 #define CLS_BUFFER_SIZE MAX_CLASSNAME_LENGTH
 #endif
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     InlineSString<MAX_CLASSNAME_LENGTH> ssClsNameBuff;
     ScratchBuffer<MAX_CLASSNAME_LENGTH> ssClsNameBuffScratch;
-#endif
+//#endif
 
 public:
 
@@ -1506,9 +1506,9 @@ protected :
     size_t                  m_reserveForJumpStubs; // Space to reserve for jump stubs when allocating code
 #endif
 
-#if defined(_DEBUG)
+//#if defined(_DEBUG)
     ULONG                   m_codeSize;     // Code size requested via allocMem
-#endif
+//#endif
 
     size_t                  m_GCinfo_len;   // Cached copy of GCinfo_len so we can backout in BackoutJitData()
     size_t                  m_EHinfo_len;   // Cached copy of EHinfo_len so we can backout in BackoutJitData()

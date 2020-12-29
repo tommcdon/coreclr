@@ -808,7 +808,7 @@ size_t CEEInfo::findNameOfToken (Module* module,
         GC_TRIGGERS;
     } CONTRACTL_END;
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     PCCOR_SIGNATURE sig = NULL;
     DWORD           cSig;
     LPCUTF8         pszNamespace = NULL;
@@ -870,9 +870,9 @@ size_t CEEInfo::findNameOfToken (Module* module,
             break;
     }
 
-#else // !_DEBUG
-    strncpy_s (szFQName, FQNameCapacity, "<UNKNOWN>", FQNameCapacity - 1);
-#endif // _DEBUG
+// #else // !_DEBUG
+//     strncpy_s (szFQName, FQNameCapacity, "<UNKNOWN>", FQNameCapacity - 1);
+// #endif // _DEBUG
 
 
     return strlen (szFQName);
@@ -3496,15 +3496,15 @@ const char* CEEInfo::getClassName (CORINFO_CLASS_HANDLE clsHnd)
     }
     else
     {
-#ifdef _DEBUG
+//#ifdef _DEBUG
         result = pMT->GetDebugClassName();
-#else // !_DEBUG
-        // since this is for diagnostic purposes only,
-        // give up on the namespace, as we don't have a buffer to concat it
-        // also note this won't show array class names.
-        LPCUTF8 nameSpace;
-        result = pMT->GetFullyQualifiedNameInfo(&nameSpace);
-#endif
+// #else // !_DEBUG
+//         // since this is for diagnostic purposes only,
+//         // give up on the namespace, as we don't have a buffer to concat it
+//         // also note this won't show array class names.
+//         LPCUTF8 nameSpace;
+//         result = pMT->GetFullyQualifiedNameInfo(&nameSpace);
+// #endif
     }
 
     EE_TO_JIT_TRANSITION();
@@ -9194,16 +9194,16 @@ const char* CEEInfo::getFieldName (CORINFO_FIELD_HANDLE fieldHnd, const char** s
         *scopeName = "";
         if (!t.IsNull())
         {
-#ifdef _DEBUG
+//#ifdef _DEBUG
             t.GetName(ssClsNameBuff);
             *scopeName = ssClsNameBuff.GetUTF8(ssClsNameBuffScratch);
-#else // !_DEBUG
-            // since this is for diagnostic purposes only,
-            // give up on the namespace, as we don't have a buffer to concat it
-            // also note this won't show array class names.
-            LPCUTF8 nameSpace;
-            *scopeName= t.GetMethodTable()->GetFullyQualifiedNameInfo(&nameSpace);
-#endif // !_DEBUG
+// #else // !_DEBUG
+//             // since this is for diagnostic purposes only,
+//             // give up on the namespace, as we don't have a buffer to concat it
+//             // also note this won't show array class names.
+//             LPCUTF8 nameSpace;
+//             *scopeName= t.GetMethodTable()->GetFullyQualifiedNameInfo(&nameSpace);
+// #endif // !_DEBUG
         }
     }
 
@@ -10294,7 +10294,7 @@ LONG EEFilterException(struct _EXCEPTION_POINTERS *pExceptionPointers, void *unu
 
     unsigned code = pExceptionPointers->ExceptionRecord->ExceptionCode;
 
-#ifdef _DEBUG
+// #ifdef _DEBUG
     if (code == EXCEPTION_ACCESS_VIOLATION)
     {
         static int hit = 0;
@@ -10311,7 +10311,7 @@ LONG EEFilterException(struct _EXCEPTION_POINTERS *pExceptionPointers, void *unu
         }
     }
     else
-#endif // _DEBUG
+// #endif // _DEBUG
     // No one should be catching breakpoint
     // Similarly the JIT doesn't know how to reset the guard page, so it shouldn't
     // be catching a hard stack overflow
@@ -11901,9 +11901,9 @@ void CEEJitInfo::allocMem (
 
     _ASSERTE((SIZE_T)(current - (BYTE *)m_CodeHeader->GetCodeStartAddress()) <= totalSize.Value());
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
     m_codeSize = codeSize;
-#endif  // _DEBUG
+//#endif  // _DEBUG
 
     EE_TO_JIT_TRANSITION();
 }

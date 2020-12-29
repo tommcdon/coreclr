@@ -4757,7 +4757,7 @@ CORINFO_METHOD_HANDLE CEEPreloader::NextUncompiledMethod()
     MethodDesc * pMD = m_uncompiledMethods[count - 1];
     m_uncompiledMethods.SetCount(count - 1);
 
-#ifdef _DEBUG 
+//#ifdef _DEBUG 
     if (LoggingOn(LF_ZAP, LL_INFO10000))
     {
         StackSString methodString;
@@ -4765,7 +4765,7 @@ CORINFO_METHOD_HANDLE CEEPreloader::NextUncompiledMethod()
 
         LOG((LF_ZAP, LL_INFO10000, "CEEPreloader::NextUncompiledMethod: %S\n", methodString.GetUnicode()));
     }
-#endif // _DEBUG
+//#endif // _DEBUG
 
     return (CORINFO_METHOD_HANDLE) pMD;
 }
