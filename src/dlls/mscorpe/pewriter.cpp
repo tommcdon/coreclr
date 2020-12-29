@@ -6,11 +6,11 @@
 #include "blobfetcher.h"
 #include "pedecoder.h"
 
-//#ifdef _DEBUG
+#ifdef _DEBUG
 #ifndef LOGGING
 #define LOGGING
 #endif
-//#endif
+#endif
 
 #ifdef LOGGING
 #include "log.h"
